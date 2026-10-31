@@ -264,27 +264,7 @@ Todos los mensajes de validación y respuestas de error se muestran en español:
 
 ## 9. Cómo contribuir
 
-### Ramas
-- `main`: rama de entregas (solo recibe merges desde `dev` al cerrar versión, como el tag `v1.0.0`).
-- `dev`: rama de integración del equipo.
-- `feat/...`, `fix/...`, `docs/...`, `chore/...`, `test/...`: ramas de trabajo individuales que se integran mediante Pull Request hacia `dev`.
-- No se hace push directo a `main` ni a `dev` durante el desarrollo, y no se usa `git push --force`.
-
-### Commits
-Commits cortos de una sola línea en español con prefijo según el tipo de cambio:
-- `feat:` nueva funcionalidad.
-- `fix:` corrección de errores.
-- `docs:` documentación.
-- `chore:` configuración, dependencias o tareas de entorno.
-- `test:` pruebas automatizadas.
-
-### Calidad antes de abrir un Pull Request
-Desde la carpeta `app/`, verificar que ambos comandos terminen sin errores ni warnings:
-```bash
-flutter analyze
-flutter test
-```
-Además, confirmar que todos los textos de la interfaz estén en español y que `app/.env` no forme parte de ningún commit.
+Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, formato de commits, checklist de calidad antes de abrir un Pull Request y el workflow de CI que corre `flutter analyze` y `flutter test` en cada PR hacia `dev` y `main`.
 
 ---
 
