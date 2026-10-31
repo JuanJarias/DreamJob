@@ -43,50 +43,50 @@ Notas: funcion escrita en el mismo PR #27. Falta correrla en Supabase y probarla
 
 ## #15 AuthRepository y AuthProvider reales
 
-Estado: pendiente
+Estado: en progreso
 Depende de: #5, #6, #7
 
-- [ ] Supabase.initialize en main.dart
-- [ ] auth_repository.dart con la interfaz y la implementacion real
-- [ ] fromMap y toMap en los modelos
-- [ ] AuthProvider reescrito sin cambiar su contrato publico
-- [ ] widget_test.dart migrado a FakeAuthRepository
-- [ ] flutter analyze limpio
-- [ ] flutter test en verde
+- [x] Supabase.initialize en main.dart
+- [x] auth_repository.dart con la interfaz y la implementacion real
+- [x] fromMap y toMap en los modelos
+- [x] AuthProvider reescrito sin cambiar su contrato publico
+- [x] widget_test.dart migrado a FakeAuthRepository
+- [x] flutter analyze limpio
+- [x] flutter test en verde
 - [ ] Probado con .env real, candidato y reclutador
 
 Verificacion: flutter analyze, flutter test, prueba manual con Table Editor.
 
-Notas:
+Notas: implementado en la rama feat/nucleo-auth, PR #28. flutter analyze sin issues y los 9 tests (3 de widget_test.dart mas 6 de auth_error_mapper_test.dart) pasan. Falta la prueba manual con un proyecto Supabase real, depende de #5.
 
 ## #16 Errores de Supabase en espanol
 
-Estado: pendiente
+Estado: hecha
 Depende de: #15
 
-- [ ] auth_error_mapper.dart con los casos de email duplicado, credenciales, password corta y sin conexion
-- [ ] auth_error_mapper_test.dart
-- [ ] flutter analyze limpio
+- [x] auth_error_mapper.dart con los casos de email duplicado, credenciales, password corta y sin conexion
+- [x] auth_error_mapper_test.dart
+- [x] flutter analyze limpio
 - [ ] Probado en modo avion
 
 Verificacion: flutter analyze, flutter test, prueba manual.
 
-Notas:
+Notas: mapeo hecho contra los codigos reales de AuthException/PostgrestException del paquete gotrue 2.27.3 instalado (user_already_exists, email_exists, invalid_credentials, weak_password) mas deteccion de errores de red por texto. Cubierto con 6 tests offline en auth_error_mapper_test.dart, todos en verde. PR #28. La prueba manual en modo avion queda pendiente de tener la app corriendo contra Supabase real.
 
 ## #17 Sesion persistente y Splash
 
-Estado: pendiente
+Estado: en progreso
 Depende de: #15
 
-- [ ] redirect del router esperando a loading antes de decidir
-- [ ] SplashScreen simplificado
-- [ ] signOut limpia la sesion y vuelve a login
+- [x] redirect del router esperando a loading antes de decidir
+- [x] SplashScreen simplificado
+- [x] signOut limpia la sesion y vuelve a login
 - [ ] Verificado cerrando y reabriendo la app, candidato y reclutador
 - [ ] Prueba funcional de la RPC de #7 confirmada
 
 Verificacion: cierre y reapertura real de la app.
 
-Notas:
+Notas: redirect y Splash hechos en la rama feat/nucleo-auth, PR #28. flutter analyze y flutter test en verde. Falta la prueba real de cerrar y reabrir la app, depende de tener el proyecto Supabase de #5.
 
 ## #21 CONTRIBUTING, plantilla de PR y CI
 
@@ -107,3 +107,4 @@ Notas:
 
 - 2026-10-31: creado este documento de seguimiento.
 - 2026-10-31: escrito supabase/schema.sql con tablas, RLS y la rpc registrar_reclutador. PR #27 abierto contra dev, pendiente de correr en un proyecto Supabase real.
+- 2026-10-31: AuthRepository real, AuthProvider conectado a Supabase, mapeo de errores en espanol y sesion persistente con splash simplificado. flutter analyze y flutter test (9 tests) en verde. PR #28 abierto contra dev, pendiente de probar con un proyecto Supabase real (depende de #5).
