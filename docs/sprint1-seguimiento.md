@@ -90,21 +90,23 @@ Notas: redirect y Splash hechos en la rama feat/nucleo-auth, PR #28. flutter ana
 
 ## #21 CONTRIBUTING, plantilla de PR y CI
 
-Estado: pendiente
+Estado: en progreso
 Depende de: ninguna
 
-- [ ] CONTRIBUTING.md
-- [ ] .github/pull_request_template.md
+- [x] CONTRIBUTING.md
+- [x] .github/pull_request_template.md
 - [ ] .github/workflows/ci.yml
-- [ ] Link agregado en el README
+- [x] Link agregado en el README
 - [ ] PR de prueba con el CI en verde
 
 Verificacion: PR de prueba.
 
-Notas:
+Notas: CONTRIBUTING.md, la plantilla de PR y el link en el README van en la rama docs/contributing-ci, PR #29. El workflow ci.yml esta escrito localmente pero no se pudo pushear: el token de gh no tiene el scope workflow. Falta que Joshua corra `gh auth refresh -s workflow` y aprobar en el navegador para poder subirlo.
 
 ## Bitacora
 
 - 2026-10-31: creado este documento de seguimiento.
 - 2026-10-31: escrito supabase/schema.sql con tablas, RLS y la rpc registrar_reclutador. PR #27 abierto contra dev, pendiente de correr en un proyecto Supabase real.
 - 2026-10-31: AuthRepository real, AuthProvider conectado a Supabase, mapeo de errores en espanol y sesion persistente con splash simplificado. flutter analyze y flutter test (9 tests) en verde. PR #28 abierto contra dev, pendiente de probar con un proyecto Supabase real (depende de #5).
+- 2026-10-31: CONTRIBUTING.md y plantilla de PR, PR #29 abierto contra dev. El workflow de CI queda pendiente de pushear por falta del scope workflow en el token de gh.
+- 2026-10-31: todos los PR (#26, #27, #28, #29) quedan abiertos contra dev, pendientes de revision y merge. El sandbox no permite mergear PR sin revision humana.
