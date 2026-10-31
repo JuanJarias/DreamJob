@@ -55,3 +55,35 @@ create policy "empresas_select_de_mi_reclutador" on public.empresas
   for select using (
     id in (select empresa_id from public.reclutadores where id = auth.uid())
   );
+
+create or replace function public.registrar_reclutador(
+  p_nombre text,
+  p_email text,
+  p_empresa_nombre text,
+  p_empresa_descripcion text,
+  p_empresa_monograma text
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_empresa_id uuid;
+begin
+  if v_uid is null then
+    raise exception 'No autenticado';
+  end if;
+
+  insert into public.empresas (nombre, descripcion, monograma)
+  values (p_empresa_nombre, p_empresa_descripcion, p_empresa_monograma)
+  returning id into v_empresa_id;
+
+  insert into public.reclutadores (id, nombre, email, empresa_id)
+  values (v_uid, p_nombre, p_email, v_empresa_id);
+end;
+$$;
+
+revoke all on function public.registrar_reclutador(text, text, text, text, text) from public;
+grant execute on function public.registrar_reclutador(text, text, text, text, text) to authenticated;
