@@ -8,38 +8,38 @@ Estados posibles: pendiente, en progreso, hecha
 
 ## #6 supabase/schema.sql: tablas y RLS
 
-Estado: pendiente
+Estado: en progreso
 Depende de: #5
 
-- [ ] Tabla empresas con id, nombre, descripcion, monograma, created_at
-- [ ] Tabla usuarios con id, nombre, email, ciudad, fecha_nacimiento, resumen_perfil, created_at
-- [ ] Tabla reclutadores con id, nombre, email, empresa_id, created_at
-- [ ] RLS activo en las tres tablas
-- [ ] Politicas de usuarios (select, insert, update propio)
-- [ ] Politicas de reclutadores (select, update propio, sin insert)
-- [ ] Politica de empresas (select de la empresa del reclutador autenticado, sin insert)
+- [x] Tabla empresas con id, nombre, descripcion, monograma, created_at
+- [x] Tabla usuarios con id, nombre, email, ciudad, fecha_nacimiento, resumen_perfil, created_at
+- [x] Tabla reclutadores con id, nombre, email, empresa_id, created_at
+- [x] RLS activo en las tres tablas
+- [x] Politicas de usuarios (select, insert, update propio)
+- [x] Politicas de reclutadores (select, update propio, sin insert)
+- [x] Politica de empresas (select de la empresa del reclutador autenticado, sin insert)
 - [ ] Script corrido sin errores en el SQL Editor de Supabase
 
 Verificacion: SQL Editor de Supabase.
 
-Notas:
+Notas: schema.sql escrito en la rama feat/supabase-schema, PR #27. Falta correrlo en un proyecto Supabase real (depende de #5) para confirmar que no tiene errores.
 
 ## #7 RPC registrar_reclutador
 
-Estado: pendiente
+Estado: en progreso
 Depende de: #5, #6
 
-- [ ] Firma exacta con los 5 parametros text
-- [ ] security definer y search_path = public
-- [ ] Valida auth.uid(), lanza excepcion si es null
-- [ ] Inserta empresa antes que reclutador por la llave foranea
-- [ ] grant execute solo a authenticated
+- [x] Firma exacta con los 5 parametros text
+- [x] security definer y search_path = public
+- [x] Valida auth.uid(), lanza excepcion si es null
+- [x] Inserta empresa antes que reclutador por la llave foranea
+- [x] grant execute solo a authenticated
 - [ ] Corrido sin errores en el SQL Editor
 - [ ] Probado de verdad desde la app (ver #15)
 
 Verificacion: SQL Editor y prueba funcional en #15.
 
-Notas:
+Notas: funcion escrita en el mismo PR #27. Falta correrla en Supabase y probarla end to end registrando un reclutador real desde la app.
 
 ## #15 AuthRepository y AuthProvider reales
 
@@ -106,3 +106,4 @@ Notas:
 ## Bitacora
 
 - 2026-10-31: creado este documento de seguimiento.
+- 2026-10-31: escrito supabase/schema.sql con tablas, RLS y la rpc registrar_reclutador. PR #27 abierto contra dev, pendiente de correr en un proyecto Supabase real.
