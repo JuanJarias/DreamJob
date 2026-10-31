@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth/state/auth_provider.dart';
 import 'router/app_router.dart';
 import 'theme.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+    url: const String.fromEnvironment('SUPABASE_URL'),
+    publishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+  );
   runApp(const DreamJobApp());
 }
 

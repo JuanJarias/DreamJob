@@ -1,28 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import '../data/auth_error_mapper.dart';
+import '../data/auth_repository.dart';
 import '../data/models.dart';
 
-class _StubAccount {
-  final String password;
-  final UserRole role;
-  final CandidateProfile? candidate;
-  final RecruiterProfile? recruiter;
-
-  const _StubAccount({
-    required this.password,
-    required this.role,
-    this.candidate,
-    this.recruiter,
-  });
-}
-
 class AuthProvider extends ChangeNotifier {
-  bool _loading = false;
+  AuthProvider({AuthRepository? repository})
+      : _repository = repository ?? SupabaseAuthRepository() {
+    unawaited(_restoreSession());
+  }
+
+  final AuthRepository _repository;
+
+  bool _loading = true;
   String? _error;
   UserRole? _role;
   CandidateProfile? _candidate;
   RecruiterProfile? _recruiter;
-
-  final Map<String, _StubAccount> _accounts = {};
 
   bool get loading => _loading;
   String? get error => _error;
@@ -38,6 +33,28 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> _restoreSession() async {
+    final session = _repository.currentSession;
+    if (session == null) {
+      _loading = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final role = _rolDesdeMetadata(session.user.userMetadata);
+      await _cargarPerfil(role, session.user.id);
+    } catch (_) {
+      await _repository.signOut();
+      _role = null;
+      _candidate = null;
+      _recruiter = null;
+    }
+
+    _loading = false;
+    notifyListeners();
+  }
+
   Future<bool> signIn(String email, String password) async {
     final normalizedEmail = email.trim().toLowerCase();
     if (normalizedEmail.isEmpty || password.isEmpty) {
@@ -50,23 +67,27 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-
-    final account = _accounts[normalizedEmail];
-    if (account == null || account.password != password) {
+    try {
+      final response = await _repository.signIn(
+        email: normalizedEmail,
+        password: password,
+      );
+      final user = response.user;
+      if (user == null) {
+        throw Exception('No se pudo iniciar sesión');
+      }
+      final role = _rolDesdeMetadata(user.userMetadata);
+      await _cargarPerfil(role, user.id);
       _loading = false;
-      _error = 'Correo electrónico o contraseña incorrectos';
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
       notifyListeners();
       return false;
     }
-
-    _role = account.role;
-    _candidate = account.candidate;
-    _recruiter = account.recruiter;
-    _loading = false;
-    _error = null;
-    notifyListeners();
-    return true;
   }
 
   Future<bool> signUpCandidate({
@@ -96,41 +117,44 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    await Future<void>.delayed(const Duration(milliseconds: 250));
+    try {
+      final response = await _repository.signUp(
+        email: normalizedEmail,
+        password: password,
+        data: {'role': UserRole.candidato.name},
+      );
+      final user = response.user;
+      if (user == null) {
+        throw Exception('No se pudo crear la cuenta');
+      }
 
-    if (_accounts.containsKey(normalizedEmail)) {
+      final trimmedResumen = resumenPerfil?.trim();
+      final profile = CandidateProfile(
+        id: user.id,
+        nombre: nombre.trim(),
+        email: normalizedEmail,
+        ciudad: ciudad.trim(),
+        fechaNacimiento: fechaNacimiento,
+        resumenPerfil:
+            (trimmedResumen == null || trimmedResumen.isEmpty)
+                ? null
+                : trimmedResumen,
+      );
+      await _repository.crearUsuario(profile.toMap());
+
+      _role = UserRole.candidato;
+      _candidate = profile;
+      _recruiter = null;
       _loading = false;
-      _error = 'Este correo electrónico ya está registrado';
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
       notifyListeners();
       return false;
     }
-
-    final trimmedResumen = resumenPerfil?.trim();
-    final profile = CandidateProfile(
-      id: 'cand-${_accounts.length + 1}',
-      nombre: nombre.trim(),
-      email: normalizedEmail,
-      ciudad: ciudad.trim(),
-      fechaNacimiento: fechaNacimiento,
-      resumenPerfil:
-          (trimmedResumen == null || trimmedResumen.isEmpty)
-              ? null
-              : trimmedResumen,
-    );
-
-    _accounts[normalizedEmail] = _StubAccount(
-      password: password,
-      role: UserRole.candidato,
-      candidate: profile,
-    );
-
-    _role = UserRole.candidato;
-    _candidate = profile;
-    _recruiter = null;
-    _loading = false;
-    _error = null;
-    notifyListeners();
-    return true;
   }
 
   Future<bool> signUpRecruiter({
@@ -162,49 +186,66 @@ class AuthProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
 
-    await Future<void>.delayed(const Duration(milliseconds: 250));
+    try {
+      final response = await _repository.signUp(
+        email: normalizedEmail,
+        password: password,
+        data: {'role': UserRole.reclutador.name},
+      );
+      final user = response.user;
+      if (user == null) {
+        throw Exception('No se pudo crear la cuenta');
+      }
 
-    if (_accounts.containsKey(normalizedEmail)) {
+      await _repository.registrarReclutador(
+        nombre: nombre.trim(),
+        email: normalizedEmail,
+        empresaNombre: empresaNombre.trim(),
+        empresaDescripcion: empresaDescripcion.trim(),
+        empresaMonograma: empresaMonograma.trim().toUpperCase(),
+      );
+
+      await _cargarPerfil(UserRole.reclutador, user.id);
       _loading = false;
-      _error = 'Este correo electrónico ya está registrado';
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
       notifyListeners();
       return false;
     }
-
-    final company = CompanyProfile(
-      id: 'emp-${_accounts.length + 1}',
-      nombre: empresaNombre.trim(),
-      descripcion: empresaDescripcion.trim(),
-      monograma: empresaMonograma.trim().toUpperCase(),
-    );
-    final profile = RecruiterProfile(
-      id: 'recl-${_accounts.length + 1}',
-      nombre: nombre.trim(),
-      email: normalizedEmail,
-      empresa: company,
-    );
-
-    _accounts[normalizedEmail] = _StubAccount(
-      password: password,
-      role: UserRole.reclutador,
-      recruiter: profile,
-    );
-
-    _role = UserRole.reclutador;
-    _recruiter = profile;
-    _candidate = null;
-    _loading = false;
-    _error = null;
-    notifyListeners();
-    return true;
   }
 
   Future<void> signOut() async {
+    await _repository.signOut();
     _loading = false;
     _error = null;
     _role = null;
     _candidate = null;
     _recruiter = null;
     notifyListeners();
+  }
+
+  Future<void> _cargarPerfil(UserRole role, String userId) async {
+    if (role == UserRole.candidato) {
+      final datos = await _repository.obtenerUsuario(userId);
+      _candidate = CandidateProfile.fromMap(datos);
+      _recruiter = null;
+    } else {
+      final datos = await _repository.obtenerReclutadorConEmpresa(userId);
+      _recruiter = RecruiterProfile.fromMap(datos);
+      _candidate = null;
+    }
+    _role = role;
+  }
+
+  UserRole _rolDesdeMetadata(Map<String, dynamic>? metadata) {
+    final valor = metadata?['role'] as String?;
+    if (valor == null) {
+      throw Exception('El usuario no tiene un rol asignado');
+    }
+    return UserRole.values.byName(valor);
   }
 }
