@@ -1,0 +1,8 @@
+# Secretos y variables de entorno
+.env
+app/.env
+*.env
+!app/.env.example
+
+# Carpetas ignoradas por regla del proyecto
+applications/
