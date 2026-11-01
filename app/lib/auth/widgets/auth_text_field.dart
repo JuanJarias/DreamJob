@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../theme.dart';
 
 class AuthTextField extends StatelessWidget {
@@ -15,6 +16,8 @@ class AuthTextField extends StatelessWidget {
   final int maxLines;
   final int? maxLength;
   final ValueChanged<String>? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextCapitalization textCapitalization;
 
   const AuthTextField({
     super.key,
@@ -31,6 +34,8 @@ class AuthTextField extends StatelessWidget {
     this.maxLines = 1,
     this.maxLength,
     this.onChanged,
+    this.inputFormatters,
+    this.textCapitalization = TextCapitalization.none,
   });
 
   @override
@@ -57,6 +62,8 @@ class AuthTextField extends StatelessWidget {
           maxLines: maxLines,
           maxLength: maxLength,
           onChanged: onChanged,
+          inputFormatters: inputFormatters,
+          textCapitalization: textCapitalization,
           style: const TextStyle(color: DjColors.ink, fontSize: 15),
           decoration: InputDecoration(
             hintText: hint,

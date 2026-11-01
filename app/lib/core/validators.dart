@@ -46,4 +46,17 @@ class Validators {
     }
     return null;
   }
+
+  static String? monogram(String? value) {
+    final req = required(value);
+    if (req != null) return req;
+    final trimmed = value!.trim();
+    if (trimmed.isEmpty || trimmed.length > 3) {
+      return 'El monograma debe tener entre 1 y 3 letras';
+    }
+    if (!RegExp(r'^[a-zA-Z]+$').hasMatch(trimmed)) {
+      return 'El monograma solo debe contener letras';
+    }
+    return null;
+  }
 }
