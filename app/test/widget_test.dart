@@ -2,12 +2,13 @@ import 'package:dreamjob/auth/state/auth_provider.dart';
 import 'package:dreamjob/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'fakes/fake_auth_repository.dart';
 
 void main() {
   testWidgets(
     'Login y selector de rol navegan correctamente y validan campos vacíos',
     (WidgetTester tester) async {
-      final auth = AuthProvider();
+      final auth = AuthProvider(repository: FakeAuthRepository());
       await tester.pumpWidget(
         DreamJobApp(authProvider: auth, initialLocation: '/login'),
       );
@@ -35,7 +36,7 @@ void main() {
   testWidgets(
     'RegisterCandidateScreen valida campos vacíos, email inválido y contraseña corta',
     (WidgetTester tester) async {
-      final auth = AuthProvider();
+      final auth = AuthProvider(repository: FakeAuthRepository());
       await tester.pumpWidget(
         DreamJobApp(authProvider: auth, initialLocation: '/register/candidato'),
       );
@@ -69,7 +70,7 @@ void main() {
   testWidgets(
     'Registrar candidato exitoso redirige automáticamente a /profile',
     (WidgetTester tester) async {
-      final auth = AuthProvider();
+      final auth = AuthProvider(repository: FakeAuthRepository());
       await tester.pumpWidget(
         DreamJobApp(authProvider: auth, initialLocation: '/register/candidato'),
       );

@@ -17,11 +17,15 @@ GoRouter createAppRouter(
     initialLocation: initialLocation,
     refreshListenable: authProvider,
     redirect: (BuildContext context, GoRouterState state) {
+      if (authProvider.loading) {
+        return null;
+      }
+
       final isLoggedIn = authProvider.isAuthenticated;
       final loc = state.matchedLocation;
 
       if (loc == '/splash') {
-        return null;
+        return isLoggedIn ? '/profile' : '/login';
       }
 
       final isAuthRoute = loc == '/login' || loc.startsWith('/register');
@@ -36,7 +40,7 @@ GoRouter createAppRouter(
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => SplashScreen(authProvider: authProvider),
+        builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
         path: '/login',
@@ -62,24 +66,8 @@ GoRouter createAppRouter(
   );
 }
 
-class SplashScreen extends StatefulWidget {
-  final AuthProvider authProvider;
-  const SplashScreen({super.key, required this.authProvider});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final target = widget.authProvider.isAuthenticated ? '/profile' : '/login';
-      context.go(target);
-    });
-  }
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
