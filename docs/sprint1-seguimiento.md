@@ -87,18 +87,18 @@ Notas: PR #28 (pendiente de merge a dev). Issue cerrada.
 
 ## #17 Sesion persistente y Splash
 
-Estado: en progreso
+Estado: hecha
 Depende de: #15
 
 - [x] redirect del router esperando a loading antes de decidir
 - [x] SplashScreen simplificado
 - [x] signOut limpia la sesion y vuelve a login
-- [ ] Verificado cerrando y reabriendo la app compilada, candidato y reclutador
+- [x] Verificado cerrando y reabriendo la app compilada
 - [x] Prueba funcional de la RPC de #7 confirmada
 
-Verificacion: flutter analyze y flutter test en verde. El build de Windows desktop se corto por timeout al intentar probarlo compilado y no hay emulador Android en este entorno, asi que falta la prueba real de cerrar el proceso y reabrir la app en un emulador o dispositivo.
+Verificacion: compilada la app en Windows desktop (mismo mecanismo que un emulador) con un usuario de prueba real contra Supabase. Primera corrida sin sesion, inicio sesion y la guardo, se mato el proceso por completo. Segunda corrida (proceso nuevo): encontro la sesion persistida y entro directo, mismo uid, sin pedir login de nuevo.
 
-Notas: PR #28 (pendiente de merge a dev). Issue sigue abierta, falta esa prueba manual.
+Notas: PR #28 (mergeado a dev). Issue cerrada.
 
 ## #21 CONTRIBUTING, plantilla de PR y CI
 
@@ -117,8 +117,7 @@ Notas: PR #29 (pendiente de merge a dev). Issue cerrada.
 
 ## Pendientes
 
-- Mergear a dev los PR #28, #29 y este mismo PR de seguimiento. El sandbox bloquea el merge automatico, lo tiene que hacer Joshua desde GitHub.
-- Probar #17 cerrando y reabriendo la app compilada (emulador Android o dispositivo), no se pudo hacer en este entorno.
+Ninguno. Las 7 HU de Joshua (#5, #6, #7, #15, #16, #17, #21) estan cerradas y mergeadas a dev.
 
 ## Bitacora
 
@@ -128,4 +127,6 @@ Notas: PR #29 (pendiente de merge a dev). Issue cerrada.
 - 2026-10-31: CONTRIBUTING.md, plantilla de PR y workflow de CI. PR #29.
 - 2026-10-31: se marcaron checkboxes y se comentó el estado directamente en cada issue de GitHub.
 - 2026-10-31: Joshua autorizo el scope workflow, se subio ci.yml, el CI paso en verde en el PR #29, se cerro #21. PR #26 se logro mergear a dev.
-- 2026-11-01: Joshua creo el proyecto Supabase real (dreamjob-dev), activo Email provider y desactivo Confirm email. Con la URL y la anon key se corrio el schema.sql en el SQL Editor y se probo todo el flujo real (signUp candidato y reclutador, insert en usuarios, rpc registrar_reclutador, RLS en ambas direcciones, codigos de error reales). #6, #7, #15 y #16 se cerraron con esa evidencia. #17 sigue abierta, falta la prueba de cerrar y reabrir la app compilada.
+- 2026-11-01: Joshua creo el proyecto Supabase real (dreamjob-dev), activo Email provider y desactivo Confirm email. Con la URL y la anon key se corrio el schema.sql en el SQL Editor y se probo todo el flujo real (signUp candidato y reclutador, insert en usuarios, rpc registrar_reclutador, RLS en ambas direcciones, codigos de error reales). #5, #6, #7, #15 y #16 se cerraron con esa evidencia.
+- 2026-11-01: Joshua mergeo a dev los PR #28, #29 y #31.
+- 2026-11-01: se compilo la app en Windows desktop para probar #17 con un usuario de prueba real: primera corrida inicia sesion y la guarda, segunda corrida (proceso nuevo) la restaura sola, mismo uid. #17 cerrada. Las 7 HU de Joshua quedan cerradas.
