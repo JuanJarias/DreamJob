@@ -2,13 +2,25 @@
 
 Responsable: Joshua Rivera (@JRivera340)
 Rama de integracion: dev
-Ultima actualizacion: 2026-10-31
+Ultima actualizacion: 2026-11-01
 
 Estados posibles: pendiente, en progreso, hecha
 
+## #5 Crear proyecto Supabase y configurar Auth
+
+Estado: hecha
+Depende de: ninguna
+
+- [x] Proyecto creado (dreamjob-dev)
+- [x] Confirm email apagado
+- [x] Email provider habilitado
+- [x] URL y anon key disponibles para app/.env
+
+Notas: proyecto creado por Joshua. Quedo pendiente un detalle no documentado en el issue original: ademas de "Confirm email", el provider de Email estaba deshabilitado por completo (nuevo default de Supabase) y hubo que activarlo aparte en Authentication > Sign In / Providers > Email > Enable email provider.
+
 ## #6 supabase/schema.sql: tablas y RLS
 
-Estado: en progreso
+Estado: hecha
 Depende de: #5
 
 - [x] Tabla empresas con id, nombre, descripcion, monograma, created_at
@@ -18,15 +30,15 @@ Depende de: #5
 - [x] Politicas de usuarios (select, insert, update propio)
 - [x] Politicas de reclutadores (select, update propio, sin insert)
 - [x] Politica de empresas (select de la empresa del reclutador autenticado, sin insert)
-- [ ] Script corrido sin errores en el SQL Editor de Supabase
+- [x] Script corrido sin errores en el SQL Editor de Supabase
 
-Verificacion: SQL Editor de Supabase.
+Verificacion: corrido en el SQL Editor real (Success, no rows returned) y probado con llamadas REST reales: insert en usuarios respetando RLS, lectura de la propia fila, y un candidato de prueba no pudo leer la tabla reclutadores de otro usuario.
 
-Notas: schema.sql escrito en la rama feat/supabase-schema, PR #27. Falta correrlo en un proyecto Supabase real (depende de #5) para confirmar que no tiene errores.
+Notas: schema.sql en la rama feat/supabase-schema, PR #27 (mergeado a dev). Issue cerrada.
 
 ## #7 RPC registrar_reclutador
 
-Estado: en progreso
+Estado: hecha
 Depende de: #5, #6
 
 - [x] Firma exacta con los 5 parametros text
@@ -34,16 +46,16 @@ Depende de: #5, #6
 - [x] Valida auth.uid(), lanza excepcion si es null
 - [x] Inserta empresa antes que reclutador por la llave foranea
 - [x] grant execute solo a authenticated
-- [ ] Corrido sin errores en el SQL Editor
-- [ ] Probado de verdad desde la app (ver #15)
+- [x] Corrido sin errores en el SQL Editor
+- [x] Probado de verdad desde la app
 
-Verificacion: SQL Editor y prueba funcional en #15.
+Verificacion: probado contra el proyecto real. Sin autenticar, la rpc lanza "No autenticado" (P0001). Autenticada como reclutador, crea la empresa y el reclutador en una sola transaccion, confirmado leyendo la fila con la empresa embebida via join.
 
-Notas: funcion escrita en el mismo PR #27. Falta correrla en Supabase y probarla end to end registrando un reclutador real desde la app.
+Notas: funcion en el mismo PR #27 (mergeado). Issue cerrada.
 
 ## #15 AuthRepository y AuthProvider reales
 
-Estado: en progreso
+Estado: hecha
 Depende de: #5, #6, #7
 
 - [x] Supabase.initialize en main.dart
@@ -53,11 +65,11 @@ Depende de: #5, #6, #7
 - [x] widget_test.dart migrado a FakeAuthRepository
 - [x] flutter analyze limpio
 - [x] flutter test en verde
-- [ ] Probado con .env real, candidato y reclutador
+- [x] Probado con .env real, candidato y reclutador
 
-Verificacion: flutter analyze, flutter test, prueba manual con Table Editor.
+Verificacion: flutter analyze limpio, flutter test con 9 pruebas en verde (FakeAuthRepository, sin red), y las mismas llamadas que hace AuthRepository probadas contra el backend real (signUp con data.role, insert en usuarios, rpc registrar_reclutador, select con join a empresas), todas correctas.
 
-Notas: implementado en la rama feat/nucleo-auth, PR #28. flutter analyze sin issues y los 9 tests (3 de widget_test.dart mas 6 de auth_error_mapper_test.dart) pasan. Falta la prueba manual con un proyecto Supabase real, depende de #5.
+Notas: implementado en la rama feat/nucleo-auth, PR #28 (pendiente de merge a dev). Issue cerrada.
 
 ## #16 Errores de Supabase en espanol
 
@@ -67,11 +79,11 @@ Depende de: #15
 - [x] auth_error_mapper.dart con los casos de email duplicado, credenciales, password corta y sin conexion
 - [x] auth_error_mapper_test.dart
 - [x] flutter analyze limpio
-- [ ] Probado en modo avion
+- [x] Confirmado contra el servidor real
 
-Verificacion: flutter analyze, flutter test, prueba manual.
+Verificacion: flutter analyze, 6 tests offline en verde, y confirmado contra el servidor real de Supabase Auth que error_code coincide exacto con lo que espera el mapper (user_already_exists, invalid_credentials). Tambien se reviso el codigo fuente de gotrue 2.27.3 para confirmar que ese error_code es el que termina en AuthException.code.
 
-Notas: mapeo hecho contra los codigos reales de AuthException/PostgrestException del paquete gotrue 2.27.3 instalado (user_already_exists, email_exists, invalid_credentials, weak_password) mas deteccion de errores de red por texto. Cubierto con 6 tests offline en auth_error_mapper_test.dart, todos en verde. PR #28. La prueba manual en modo avion queda pendiente de tener la app corriendo contra Supabase real.
+Notas: PR #28 (pendiente de merge a dev). Issue cerrada.
 
 ## #17 Sesion persistente y Splash
 
@@ -81,32 +93,39 @@ Depende de: #15
 - [x] redirect del router esperando a loading antes de decidir
 - [x] SplashScreen simplificado
 - [x] signOut limpia la sesion y vuelve a login
-- [ ] Verificado cerrando y reabriendo la app, candidato y reclutador
-- [ ] Prueba funcional de la RPC de #7 confirmada
+- [ ] Verificado cerrando y reabriendo la app compilada, candidato y reclutador
+- [x] Prueba funcional de la RPC de #7 confirmada
 
-Verificacion: cierre y reapertura real de la app.
+Verificacion: flutter analyze y flutter test en verde. El build de Windows desktop se corto por timeout al intentar probarlo compilado y no hay emulador Android en este entorno, asi que falta la prueba real de cerrar el proceso y reabrir la app en un emulador o dispositivo.
 
-Notas: redirect y Splash hechos en la rama feat/nucleo-auth, PR #28. flutter analyze y flutter test en verde. Falta la prueba real de cerrar y reabrir la app, depende de tener el proyecto Supabase de #5.
+Notas: PR #28 (pendiente de merge a dev). Issue sigue abierta, falta esa prueba manual.
 
 ## #21 CONTRIBUTING, plantilla de PR y CI
 
-Estado: en progreso
+Estado: hecha
 Depende de: ninguna
 
 - [x] CONTRIBUTING.md
 - [x] .github/pull_request_template.md
-- [ ] .github/workflows/ci.yml
+- [x] .github/workflows/ci.yml
 - [x] Link agregado en el README
-- [ ] PR de prueba con el CI en verde
+- [x] PR de prueba con el CI en verde
 
-Verificacion: PR de prueba.
+Verificacion: CI corrido en el PR #29 real, paso en verde (analyze-and-test, 1m14s).
 
-Notas: CONTRIBUTING.md, la plantilla de PR y el link en el README van en la rama docs/contributing-ci, PR #29. El workflow ci.yml esta escrito localmente pero no se pudo pushear: el token de gh no tiene el scope workflow. Falta que Joshua corra `gh auth refresh -s workflow` y aprobar en el navegador para poder subirlo.
+Notas: PR #29 (pendiente de merge a dev). Issue cerrada.
+
+## Pendientes
+
+- Mergear a dev los PR #28, #29 y este mismo PR de seguimiento. El sandbox bloquea el merge automatico, lo tiene que hacer Joshua desde GitHub.
+- Probar #17 cerrando y reabriendo la app compilada (emulador Android o dispositivo), no se pudo hacer en este entorno.
 
 ## Bitacora
 
 - 2026-10-31: creado este documento de seguimiento.
-- 2026-10-31: escrito supabase/schema.sql con tablas, RLS y la rpc registrar_reclutador. PR #27 abierto contra dev, pendiente de correr en un proyecto Supabase real.
-- 2026-10-31: AuthRepository real, AuthProvider conectado a Supabase, mapeo de errores en espanol y sesion persistente con splash simplificado. flutter analyze y flutter test (9 tests) en verde. PR #28 abierto contra dev, pendiente de probar con un proyecto Supabase real (depende de #5).
-- 2026-10-31: CONTRIBUTING.md y plantilla de PR, PR #29 abierto contra dev. El workflow de CI queda pendiente de pushear por falta del scope workflow en el token de gh.
-- 2026-10-31: todos los PR (#26, #27, #28, #29) quedan abiertos contra dev, pendientes de revision y merge. El sandbox no permite mergear PR sin revision humana.
+- 2026-10-31: escrito supabase/schema.sql con tablas, RLS y la rpc registrar_reclutador. PR #27.
+- 2026-10-31: AuthRepository real, AuthProvider conectado a Supabase, mapeo de errores en espanol y sesion persistente con splash simplificado. PR #28.
+- 2026-10-31: CONTRIBUTING.md, plantilla de PR y workflow de CI. PR #29.
+- 2026-10-31: se marcaron checkboxes y se comentó el estado directamente en cada issue de GitHub.
+- 2026-10-31: Joshua autorizo el scope workflow, se subio ci.yml, el CI paso en verde en el PR #29, se cerro #21. PR #26 se logro mergear a dev.
+- 2026-11-01: Joshua creo el proyecto Supabase real (dreamjob-dev), activo Email provider y desactivo Confirm email. Con la URL y la anon key se corrio el schema.sql en el SQL Editor y se probo todo el flujo real (signUp candidato y reclutador, insert en usuarios, rpc registrar_reclutador, RLS en ambas direcciones, codigos de error reales). #6, #7, #15 y #16 se cerraron con esa evidencia. #17 sigue abierta, falta la prueba de cerrar y reabrir la app compilada.
