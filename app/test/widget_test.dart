@@ -1,7 +1,9 @@
 import 'package:dreamjob/auth/state/auth_provider.dart';
 import 'package:dreamjob/main.dart';
+import 'package:dreamjob/profile/profile_summary_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   testWidgets(
@@ -257,6 +259,128 @@ void main() {
         find.text('Este correo electrónico ya está registrado'),
         findsOneWidget,
       );
+    },
+  );
+
+  testWidgets(
+    'ProfileSummaryScreen muestra CircularProgressIndicator cuando role es null',
+    (WidgetTester tester) async {
+      final auth = AuthProvider();
+      await tester.pumpWidget(
+        ChangeNotifierProvider<AuthProvider>.value(
+          value: auth,
+          child: const MaterialApp(
+            home: ProfileSummaryScreen(),
+          ),
+        ),
+      );
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'ProfileSummaryScreen para candidato muestra avatar, datos, edad calculada y resumen',
+    (WidgetTester tester) async {
+      final auth = AuthProvider();
+      final future = auth.signUpCandidate(
+        nombre: 'Valentina Rodríguez',
+        email: 'valentina@correo.com',
+        password: 'Password123!',
+        ciudad: 'Cali',
+        fechaNacimiento: DateTime(2000, 5, 15),
+        resumenPerfil: 'Desarrolladora apasionada por Flutter y UX',
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      await future;
+
+      await tester.pumpWidget(
+        DreamJobApp(authProvider: auth, initialLocation: '/profile'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Mi perfil'), findsOneWidget);
+      expect(find.text('VR'), findsOneWidget);
+      expect(find.text('Valentina Rodríguez'), findsOneWidget);
+      expect(find.text('valentina@correo.com'), findsOneWidget);
+      expect(find.text('Candidato'), findsOneWidget);
+      expect(find.text('Cali'), findsOneWidget);
+      expect(find.textContaining('2000-05-15'), findsOneWidget);
+      expect(find.textContaining('años'), findsOneWidget);
+      expect(
+        find.text('Desarrolladora apasionada por Flutter y UX'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'ProfileSummaryScreen para candidato sin resumen muestra "Sin resumen"',
+    (WidgetTester tester) async {
+      final auth = AuthProvider();
+      final future = auth.signUpCandidate(
+        nombre: 'Pedro Pérez',
+        email: 'pedro@correo.com',
+        password: 'Password123!',
+        ciudad: 'Bogotá',
+        fechaNacimiento: DateTime(1998, 1, 10),
+        resumenPerfil: null,
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      await future;
+
+      await tester.pumpWidget(
+        DreamJobApp(authProvider: auth, initialLocation: '/profile'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('PP'), findsOneWidget);
+      expect(find.text('Pedro Pérez'), findsOneWidget);
+      expect(find.text('Sin resumen'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'ProfileSummaryScreen para reclutador muestra avatar, datos y tarjeta de empresa con monograma',
+    (WidgetTester tester) async {
+      final auth = AuthProvider();
+      final future = auth.signUpRecruiter(
+        nombre: 'Carlos Reclutador',
+        email: 'carlos@empresa.com',
+        password: 'Password123!',
+        empresaNombre: 'Tech Corp',
+        empresaDescripcion: 'Empresa líder en desarrollo de software',
+        empresaMonograma: 'TC',
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      await future;
+
+      await tester.pumpWidget(
+        DreamJobApp(authProvider: auth, initialLocation: '/profile'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('CR'), findsOneWidget);
+      expect(find.text('Carlos Reclutador'), findsOneWidget);
+      expect(find.text('carlos@empresa.com'), findsOneWidget);
+      expect(find.text('Reclutador'), findsOneWidget);
+      expect(find.text('Tech Corp'), findsWidgets);
+      expect(
+        find.text('Empresa líder en desarrollo de software'),
+        findsOneWidget,
+      );
+      expect(find.text('TC'), findsWidgets);
+      expect(find.text('Monograma: TC'), findsOneWidget);
+
+      // Probar cerrar sesión
+      final logoutBtn = find.text('Cerrar sesión');
+      await tester.ensureVisible(logoutBtn);
+      await tester.tap(logoutBtn);
+      await tester.pumpAndSettle();
+
+      // Vuelve automáticamente a /login
+      expect(find.text('Iniciar sesión'), findsOneWidget);
+      expect(auth.isAuthenticated, isFalse);
     },
   );
 }
