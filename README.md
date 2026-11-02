@@ -234,6 +234,8 @@ DreamJob/
 
 ## 8. Sprint 1 — Autenticación
 
+- **Video de demostración (Sprint 1):** [Ver video en Canva](https://canva.link/669vlmr8ydbyc5a)
+
 ### 8.1. Alcance
 - Registro con datos básicos para **Candidato** y **Reclutador** (el reclutador crea siempre una empresa nueva al registrarse).
 - Inicio de sesión con correo electrónico y contraseña contra Supabase.
@@ -305,6 +307,7 @@ Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, f
 - **Joshua Rivera** ([@JRivera340](https://github.com/JRivera340)) — Núcleo, configuración de Flutter y Supabase, router, autenticación e integración.
 - **Juan José Arias** ([@JuanJarias](https://github.com/JuanJarias)) — Pantallas de login, selección de rol, registro de candidato y widgets compartidos de formulario.
 - **Ange** ([@Angdicode](https://github.com/Angdicode)) — Pantalla de registro de reclutador, resumen de perfil por rol y pruebas de widgets.
+- **Santiago Espinosa** ([@espinosacodes](https://github.com/espinosacodes)) — Diseño inicial de datos, esquema de Supabase y documentación del sprint.
 
 ### Licencia
 - Por confirmar (aún no se ha definido un archivo `LICENSE` en el repositorio).
