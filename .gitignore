@@ -4,5 +4,9 @@ app/.env
 *.env
 !app/.env.example
 
+# Archivos de IDE
+.idea/
+*.iml
+
 # Carpetas ignoradas por regla del proyecto
 applications/

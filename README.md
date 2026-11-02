@@ -5,7 +5,7 @@ Aplicación móvil de búsqueda de empleo y prácticas profesionales con dinámi
 ![Flutter](https://img.shields.io/badge/Flutter-Estable-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%2B%20Auth-3ECF8E?logo=supabase&logoColor=white)
-![Estado](https://img.shields.io/badge/Estado-Sprint%201%20(En%20desarrollo)-amber)
+![Estado](https://img.shields.io/badge/Estado-Sprint%201%20(v1.0.0)-success)
 
 ---
 
@@ -42,16 +42,16 @@ En lugar de enviar hojas de vida a decenas de portales sin recibir respuesta, el
 
 ## 3. Funcionalidades
 
-El repositorio está actualmente en el **Sprint 1 (Autenticación)**. Lo que pertenece a esta entrega figura como **En desarrollo** hasta completar la integración en `dev` y `main`; el resto corresponde al **Roadmap** derivado del modelo de datos.
+El **Sprint 1 (Autenticación — `v1.0.0`)** se encuentra implementado e integrado; el resto de módulos corresponde al **Roadmap** derivado del modelo de datos.
 
 | Funcionalidad | Estado | Detalle |
 |---|---|---|
-| Registro de candidato con onboarding básico | En desarrollo (Sprint 1) | Nombre, correo, contraseña, ciudad, fecha de nacimiento y resumen opcional |
-| Registro de reclutador con empresa nueva | En desarrollo (Sprint 1) | Datos del reclutador y alta transaccional de su empresa (nombre, descripción y monograma) por RPC |
-| Inicio de sesión con correo y contraseña | En desarrollo (Sprint 1) | Autenticación con Supabase Auth (sin confirmación de correo) y mensajes de error en español |
-| Resumen de perfil según rol | En desarrollo (Sprint 1) | Vista diferenciada para candidato (incluye edad calculada) y reclutador (incluye tarjeta de empresa) |
-| Sesión persistente y cierre de sesión | En desarrollo (Sprint 1) | El Splash verifica la sesión guardada y redirige a `/profile` o `/login` |
-| Seguridad por fila (RLS) en Postgres | En desarrollo (Sprint 1) | Políticas RLS en `empresas`, `usuarios` y `reclutadores` más la función `registrar_reclutador` |
+| Registro de candidato con onboarding básico | Implementado | Nombre, correo, contraseña, ciudad, fecha de nacimiento y resumen opcional |
+| Registro de reclutador con empresa nueva | Implementado | Datos del reclutador y alta transaccional de su empresa (nombre, descripción y monograma) por RPC |
+| Inicio de sesión con correo y contraseña | Implementado | Autenticación con Supabase Auth (sin confirmación de correo) y mensajes de error en español |
+| Resumen de perfil según rol | Implementado | Vista diferenciada para candidato (incluye edad calculada) y reclutador (incluye tarjeta de empresa) |
+| Sesión persistente y cierre de sesión | Implementado | El Splash verifica la sesión guardada en Supabase y redirige a `/profile` o `/login` |
+| Seguridad por fila (RLS) en Postgres | Implementado | Políticas RLS en `empresas`, `usuarios` y `reclutadores` más la función `registrar_reclutador` |
 | Inicio de sesión con Google y conexión con Gmail | Roadmap | Fuera del Sprint 1 (`google_sub` y tokens OAuth) |
 | Preferencias laborales, tecnologías y hojas de vida | Roadmap | Seniority, salario mínimo, modalidades, stack técnico, empresas bloqueadas y puntaje ATS |
 | Publicación de vacantes y recomendaciones | Roadmap | Ofertas por empresa, puntos clave y sugerencias con razones de compatibilidad |
@@ -133,52 +133,72 @@ Sobre el diseño de base de datos del proyecto conviene tener presentes tres pun
 
 ## 6. Estructura del repositorio
 
-- **Árbol actual en el repositorio:**
-  ```text
-  DreamJob/
-  └── README.md
-  ```
-
-- **Estructura planeada para el Sprint 1 (Por confirmar a medida que se integren las ramas):**
-  ```text
-  DreamJob/
-  ├── README.md
-  ├── supabase/
-  │   └── schema.sql                           # Planeado: tablas, políticas RLS y RPC registrar_reclutador
-  └── app/                                     # Planeado: proyecto Flutter
-      ├── .env.example                         # Planeado: plantilla con SUPABASE_URL y SUPABASE_ANON_KEY vacías
-      ├── pubspec.yaml                         # Planeado: supabase_flutter, provider, go_router
-      ├── lib/
-      │   ├── main.dart                        # Planeado: arranque de Supabase, MultiProvider y MaterialApp.router
-      │   ├── core/
-      │   │   └── validators.dart              # Planeado: validadores en español (email, password, required, date)
-      │   ├── router/                          # Planeado: definición de las 6 rutas y redirect por sesión
-      │   ├── auth/
-      │   │   ├── data/                        # Planeado: modelos y AuthRepository
-      │   │   ├── state/                       # Planeado: AuthProvider (stub en memoria y versión conectada a Supabase)
-      │   │   ├── widgets/                     # Planeado: AuthTextField, AuthPasswordField, AuthPrimaryButton, AuthErrorBanner
-      │   │   └── screens/
-      │   │       ├── login_screen.dart
-      │   │       ├── register_role_screen.dart
-      │   │       ├── register_candidate_screen.dart
-      │   │       └── register_recruiter_screen.dart
-      │   └── profile/
-      │       └── profile_summary_screen.dart  # Planeado: pantalla de resumen de perfil por rol
-      └── test/                                # Planeado: pruebas de widgets
-  ```
+```text
+DreamJob/
+├── README.md
+├── CONTRIBUTING.md
+├── .github/
+│   ├── pull_request_template.md
+│   └── workflows/
+│       └── ci.yml                           # CI: flutter analyze y flutter test
+├── docs/
+│   ├── guion-video-sprint1.md               # Guion de demostración del Sprint 1 (máx. 2 min)
+│   └── sprint1-seguimiento.md               # Bitácora técnica de verificación con Supabase
+├── supabase/
+│   └── schema.sql                           # Tablas empresas, usuarios, reclutadores, RLS y RPC registrar_reclutador
+└── app/                                     # Proyecto Flutter (paquete icesi.edu.co.dreamjob)
+    ├── .env.example                         # Plantilla con SUPABASE_URL y SUPABASE_ANON_KEY vacías
+    ├── pubspec.yaml                         # Dependencias: supabase_flutter, provider, go_router
+    ├── lib/
+    │   ├── main.dart                        # Inicialización de Supabase, MultiProvider y MaterialApp.router
+    │   ├── theme.dart                       # Paleta de colores y tema visual de DreamJob
+    │   ├── widgets/
+    │   │   └── common.dart                  # Componentes visuales compartidos (OwlBadge, DjCard, CompanyMark, etc.)
+    │   ├── core/
+    │   │   └── validators.dart              # Validadores en español (email, password, required, date, monogram)
+    │   ├── router/
+    │   │   └── app_router.dart              # Configuración de las 6 rutas, SplashScreen y redirect por sesión
+    │   ├── auth/
+    │   │   ├── data/
+    │   │   │   ├── models.dart              # UserRole, CandidateProfile, CompanyProfile y RecruiterProfile
+    │   │   │   ├── auth_repository.dart     # AuthRepository y SupabaseAuthRepository
+    │   │   │   └── auth_error_mapper.dart   # Mapeo de excepciones de Supabase y red al español
+    │   │   ├── state/
+    │   │   │   └── auth_provider.dart       # AuthProvider (ChangeNotifier) conectado a AuthRepository
+    │   │   ├── widgets/
+    │   │   │   ├── auth_text_field.dart
+    │   │   │   ├── auth_password_field.dart
+    │   │   │   ├── auth_primary_button.dart
+    │   │   │   └── auth_error_banner.dart
+    │   │   └── screens/
+    │   │       ├── login_screen.dart
+    │   │       ├── register_role_screen.dart
+    │   │       ├── register_candidate_screen.dart
+    │   │       └── register_recruiter_screen.dart
+    │   └── profile/
+    │       └── profile_summary_screen.dart  # Pantalla de resumen de perfil para candidato y reclutador
+    └── test/
+        ├── widget_test.dart
+        ├── profile_summary_screen_test.dart
+        ├── register_recruiter_screen_test.dart
+        ├── auth_error_mapper_test.dart
+        ├── demo_users_live_test.dart
+        ├── fakes/
+        │   └── fake_auth_repository.dart
+        └── helpers/
+            └── fake_auth_provider.dart
+```
 
 ---
 
 ## 7. Primeros pasos
 
-*Nota: las rutas `app/`, `app/.env.example` y `supabase/schema.sql` están marcadas como **Por confirmar** mientras se integran los primeros Pull Requests en `dev`.*
-
 ### 7.1. Requisitos
 1. **Flutter SDK estable** instalado y agregado al `PATH`, con `flutter doctor` en verde.
 2. **Android Studio** con un emulador Android (AVD) configurado, o un celular Android conectado con depuración por USB.
 3. **Proyecto en Supabase** con:
-   - La opción **"Confirm email" desactivada** (`Authentication -> Providers -> Email`).
-   - El archivo `supabase/schema.sql` (*Por confirmar*) ejecutado en el SQL Editor de Supabase.
+   - En `Authentication -> Sign In / Providers -> Email`: opción **"Enable Email provider" activada** y opción **"Confirm email" desactivada**.
+   - El archivo `supabase/schema.sql` ejecutado sin errores en el SQL Editor de Supabase.
 
 ### 7.2. Instalación y ejecución
 
@@ -188,13 +208,13 @@ Sobre el diseño de base de datos del proyecto conviene tener presentes tres pun
    cd DreamJob
    ```
 
-2. Entrar a la carpeta de la aplicación e instalar dependencias (*Por confirmar*):
+2. Entrar a la carpeta de la aplicación e instalar dependencias:
    ```bash
    cd app
    flutter pub get
    ```
 
-3. Configurar las variables de entorno copiando `app/.env.example` a `app/.env` (*Por confirmar*):
+3. Configurar las variables de entorno copiando `app/.env.example` a `app/.env`:
    ```bash
    cp .env.example .env
    ```
@@ -225,7 +245,7 @@ Sobre el diseño de base de datos del proyecto conviene tener presentes tres pun
 
 | Ruta | Clase de pantalla | Archivo | Función |
 |---|---|---|---|
-| `/splash` | Splash / Carga inicial | `app/lib/router/...` (*Por confirmar*) | Comprueba si hay sesión activa al abrir la app y redirige a `/profile` o `/login`. |
+| `/splash` | `SplashScreen` | `app/lib/router/app_router.dart` | Comprueba si hay sesión activa al abrir la app y redirige a `/profile` o `/login`. |
 | `/login` | `LoginScreen` | `app/lib/auth/screens/login_screen.dart` | Formulario de correo y contraseña, banner de error y enlace a `/register`. |
 | `/register` | `RegisterRoleScreen` | `app/lib/auth/screens/register_role_screen.dart` | Selección de rol ("¿Cómo quieres usar DreamJob?"): candidato o reclutador. |
 | `/register/candidato` | `RegisterCandidateScreen` | `app/lib/auth/screens/register_candidate_screen.dart` | Registro de candidato: nombre, correo, contraseña (mínimo 8 caracteres), confirmación, ciudad, fecha de nacimiento y resumen opcional (máx. 280 caracteres). |
@@ -254,11 +274,11 @@ Sobre el diseño de base de datos del proyecto conviene tener presentes tres pun
 
 Todos los mensajes de validación y respuestas de error se muestran en español:
 
-- **Email repetido:** si el correo ya existe en Supabase Auth, se informa en el banner de error que la cuenta ya está registrada.
-- **Credenciales incorrectas:** al ingresar un correo o contraseña equivocados en el login, el banner indica que las credenciales no son válidas.
-- **Contraseña corta:** el validador del campo exige un mínimo de 8 caracteres antes de enviar el formulario.
+- **Email repetido:** si el correo ya existe en Supabase Auth, se informa en el banner de error (`"Este correo electrónico ya está registrado"`).
+- **Credenciales incorrectas:** al ingresar un correo o contraseña equivocados en el login, el banner indica `"Correo electrónico o contraseña incorrectos"`.
+- **Contraseña corta:** el validador del campo y el mapeo de errores exigen un mínimo de 8 caracteres (`"La contraseña debe tener al menos 8 caracteres"`).
 - **Campos vacíos:** cada campo obligatorio muestra su mensaje debajo del input si se intenta enviar vacío.
-- **Sin conexión:** si el teléfono o emulador no tiene red (por ejemplo, en modo avión), se captura el fallo de red y se muestra un mensaje en español indicando el problema de conexión.
+- **Sin conexión:** si el teléfono o emulador no tiene red (por ejemplo, en modo avión), se captura el fallo de red y se muestra `"Sin conexión a internet. Verifica tu red e inténtalo de nuevo"`.
 
 ---
 
@@ -272,7 +292,7 @@ Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, f
 
 | Sprint / Etapa | Alcance | Estado |
 |---|---|---|
-| Sprint 1 | Autenticación para candidato y reclutador, alta de empresa, perfil, sesión persistente y RLS (`v1.0.0`) | En desarrollo (entrega: 1 de noviembre de 2026) |
+| Sprint 1 | Autenticación para candidato y reclutador, alta de empresa, perfil, sesión persistente y RLS (`v1.0.0`) | Completado (`v1.0.0`) |
 | Sprint 2 | Por definir | Por definir |
 | Sprint 3 | Por definir | Por definir |
 | Siguientes sprints | Por definir (vacantes, swipes y match bidireccional, agente de IA para postulaciones, seguimiento de entrevistas, coach y notificaciones) | Por definir |
