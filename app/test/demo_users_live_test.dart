@@ -18,12 +18,10 @@ void main() {
     'DEMO_RECLUTADOR_EMAIL',
     defaultValue: 'reclutador.demo@dreamjob.app',
   );
-  const password = String.fromEnvironment(
-    'DEMO_PASSWORD',
-    defaultValue: 'DreamJob2026!',
-  );
+  const password = String.fromEnvironment('DEMO_PASSWORD');
 
-  final hasLiveBackend = supabaseUrl.isNotEmpty && anonKey.isNotEmpty;
+  final hasLiveBackend =
+      supabaseUrl.isNotEmpty && anonKey.isNotEmpty && password.isNotEmpty;
 
   group('Usuarios de demostración en Supabase real', () {
     setUpAll(() async {
