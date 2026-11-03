@@ -52,13 +52,15 @@ El **Sprint 1 (Autenticación — `v1.0.0`)** se encuentra implementado e integr
 | Resumen de perfil según rol | Implementado | Vista diferenciada para candidato (incluye edad calculada) y reclutador (incluye tarjeta de empresa) |
 | Sesión persistente y cierre de sesión | Implementado | El Splash verifica la sesión guardada en Supabase y redirige a `/profile` o `/login` |
 | Seguridad por fila (RLS) en Postgres | Implementado | Políticas RLS en `empresas`, `usuarios` y `reclutadores` más la función `registrar_reclutador` |
-| Inicio de sesión con Google y conexión con Gmail | Roadmap | Fuera del Sprint 1 (`google_sub` y tokens OAuth) |
-| Preferencias laborales, tecnologías y hojas de vida | Roadmap | Seniority, salario mínimo, modalidades, stack técnico, empresas bloqueadas y puntaje ATS |
-| Publicación de vacantes y recomendaciones | Roadmap | Ofertas por empresa, puntos clave y sugerencias con razones de compatibilidad |
-| Swipes y match bidireccional | Roadmap | Deslizar a derecha/izquierda tanto para candidatos como para empresas, con opción de deshacer |
-| Agente de IA para postulaciones y documentos | Roadmap | Adaptación de CV y carta de presentación, respuestas de formulario, códigos OTP 2FA y bitácora |
-| Seguimiento de postulaciones, entrevistas y coach | Roadmap | Estados de aplicación, agenda de entrevistas y sesiones de práctica con puntaje y consejos |
-| Notificaciones | Roadmap | Avisos en la app para candidatos y reclutadores |
+| Navegación principal por rol (`HomeShell`) | Sprint 2 | Contenedor principal con barra de navegación inferior diferenciada para candidato y reclutador |
+| Preferencias laborales, tecnologías y edición de perfil | Sprint 2 | Seniority, salario mínimo, modalidad preferida, selección de tecnologías y edición de datos |
+| Publicación y gestión de vacantes (Reclutador) | Sprint 2 | Alta, edición, listado y cambio de estado de ofertas por empresa con tecnologías requeridas |
+| Deck de vacantes con swipes y vista de detalle (Candidato) | Sprint 2 | Deslizar a derecha (postular) o izquierda (omitir) con opción de deshacer e historial de interés |
+| Revisión de postulantes y match bidireccional | Sprint 3 (MVP) | Evaluación de candidatos por el reclutador y generación del match mutuo |
+| Seguimiento de postulaciones, entrevistas y coach | Sprint 3 (MVP) | Estados de aplicación, agenda de entrevistas y sesiones de práctica con puntaje y consejos |
+| Inicio de sesión con Google y conexión con Gmail | Roadmap posterior | OAuth (`google_sub`) y lectura automática de códigos OTP |
+| Agente de IA para documentos y formularios | Roadmap posterior | Adaptación de CV y carta de presentación, respuestas de formulario y bitácora |
+| Notificaciones | Roadmap posterior | Avisos en la app para candidatos y reclutadores |
 
 ---
 
@@ -142,6 +144,7 @@ DreamJob/
 │   └── workflows/
 │       └── ci.yml                           # CI: flutter analyze y flutter test
 ├── docs/
+│   ├── backlog-sprint2.md                   # Historias de usuario y criterios de aceptación del Sprint 2
 │   ├── guion-video-sprint1.md               # Guion de demostración del Sprint 1 (máx. 2 min)
 │   └── sprint1-seguimiento.md               # Bitácora técnica de verificación con Supabase
 ├── supabase/
@@ -292,12 +295,14 @@ Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, f
 
 ## 10. Roadmap
 
+El detalle de las **12 historias de usuario** y criterios de aceptación del Sprint 2 se encuentra en [docs/backlog-sprint2.md](./docs/backlog-sprint2.md).
+
 | Sprint / Etapa | Alcance | Estado |
 |---|---|---|
 | Sprint 1 | Autenticación para candidato y reclutador, alta de empresa, perfil, sesión persistente y RLS (`v1.0.0`) | Completado (`v1.0.0`) |
-| Sprint 2 | Por definir | Por definir |
-| Sprint 3 | Por definir | Por definir |
-| Siguientes sprints | Por definir (vacantes, swipes y match bidireccional, agente de IA para postulaciones, seguimiento de entrevistas, coach y notificaciones) | Por definir |
+| Sprint 2 | Navegación principal por rol (`HomeShell`), gestión de vacantes del reclutador, preferencias y tecnologías del candidato, Deck de swipes (postular/omitir/deshacer), detalle de vacante e historial de interés ([ver backlog](./docs/backlog-sprint2.md)) | Planificado (En curso) |
+| Sprint 3 (MVP) | Revisión de candidatos por el reclutador, match bidireccional, seguimiento de postulaciones por estado, agenda de entrevistas y módulo de práctica con el Coach | Planificado |
+| Siguientes etapas | Integración OAuth con Google/Gmail para lectura de OTP, adaptación automática de hojas de vida/cartas con agente de IA y notificaciones push | En hoja de ruta |
 
 ---
 
