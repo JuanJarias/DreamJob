@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../auth/data/models.dart';
 import '../auth/state/auth_provider.dart';
+import '../auth/widgets/auth_error_banner.dart';
 import '../theme.dart';
 import '../widgets/common.dart';
 
@@ -331,6 +332,10 @@ class ProfileSummaryScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (auth.error != null) ...[
+                AuthErrorBanner(error: auth.error),
+                const SizedBox(height: 16),
+              ],
               if (isCandidato)
                 _buildCandidateView(context, auth.candidate!)
               else

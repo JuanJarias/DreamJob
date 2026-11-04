@@ -48,8 +48,6 @@ void main() {
     testWidgets(
       'Candidato demo inicia sesión y ve su perfil respectivo en Supabase',
       (WidgetTester tester) async {
-        if (!hasLiveBackend) return;
-
         final repository = SupabaseAuthRepository();
         final auth = AuthProvider(repository: repository);
 
@@ -89,13 +87,12 @@ void main() {
         expect(auth.isAuthenticated, isFalse);
         expect(find.text('Iniciar sesión'), findsOneWidget);
       },
+      skip: !hasLiveBackend,
     );
 
     testWidgets(
       'Reclutador demo inicia sesión y ve su perfil con empresa en Supabase',
       (WidgetTester tester) async {
-        if (!hasLiveBackend) return;
-
         final repository = SupabaseAuthRepository();
         final auth = AuthProvider(repository: repository);
 
@@ -137,6 +134,7 @@ void main() {
         expect(auth.isAuthenticated, isFalse);
         expect(find.text('Iniciar sesión'), findsOneWidget);
       },
+      skip: !hasLiveBackend,
     );
   });
 }

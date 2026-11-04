@@ -148,7 +148,10 @@ DreamJob/
 │   ├── guion-video-sprint1.md               # Guion de demostración del Sprint 1 (máx. 2 min)
 │   └── sprint1-seguimiento.md               # Bitácora técnica de verificación con Supabase
 ├── supabase/
-│   └── schema.sql                           # Tablas empresas, usuarios, reclutadores, RLS y RPC registrar_reclutador
+│   ├── schema.sql                           # Tablas empresas, usuarios, reclutadores, RLS y RPC registrar_reclutador
+│   └── tests/
+│       ├── bootstrap.sql                    # Contrato mínimo de Auth para PostgreSQL de pruebas
+│       └── rls.sql                          # Aislamiento de cuentas y empresas, con rollback
 └── app/                                     # Proyecto Flutter (paquete icesi.edu.co.dreamjob)
     ├── .env.example                         # Plantilla con SUPABASE_URL y SUPABASE_ANON_KEY vacías
     ├── pubspec.yaml                         # Dependencias: supabase_flutter, provider, go_router
@@ -186,6 +189,7 @@ DreamJob/
         ├── register_recruiter_screen_test.dart
         ├── auth_error_mapper_test.dart
         ├── demo_users_live_test.dart
+        ├── session_recovery_test.dart
         ├── fakes/
         │   └── fake_auth_repository.dart
         └── helpers/
@@ -290,6 +294,26 @@ Todos los mensajes de validación y respuestas de error se muestran en español:
 ## 9. Cómo contribuir
 
 Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, formato de commits, checklist de calidad antes de abrir un Pull Request y el workflow de CI que corre `flutter analyze` y `flutter test` en cada PR hacia `dev` y `main`.
+
+### Verificación del Sprint 1
+
+Desde `app/`, ejecutar `flutter analyze` y `flutter test`. Las pruebas cubren formularios, perfiles de ambos roles, restauración de sesión y recuperación de errores de red al abrir la app o cerrar sesión.
+
+Las dos pruebas de `test/demo_users_live_test.dart` se omiten explícitamente cuando faltan credenciales. Para ejecutarlas contra Supabase, agregar `DEMO_PASSWORD`, `DEMO_CANDIDATO_EMAIL` y `DEMO_RECLUTADOR_EMAIL` al archivo local `app/.env` y ejecutar:
+
+```bash
+flutter test test/demo_users_live_test.dart --dart-define-from-file=.env
+```
+
+Estas pruebas esperan los perfiles demo existentes descritos en el archivo de prueba; no crean cuentas. No publicar contraseñas ni el contenido de `.env`.
+
+El job `database-rls` de CI comprueba el aislamiento de cuentas y empresas con PostgreSQL 17. Para repetirlo en una base PostgreSQL **vacía y desechable**, desde la raíz:
+
+```bash
+psql -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap.sql -f supabase/schema.sql -f supabase/tests/rls.sql
+```
+
+`bootstrap.sql` reproduce únicamente el contrato mínimo de Auth para las pruebas; no debe ejecutarse en Supabase. En un proyecto Supabase existente, volver a aplicar `supabase/schema.sql` para restringir la actualización de `reclutadores` a `nombre` y `email`. Esto impide cambiar `empresa_id` para acceder a datos de otra empresa. Las pruebas locales no modifican el proyecto remoto.
 
 ---
 

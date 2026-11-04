@@ -7,7 +7,7 @@ import '../data/models.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider({AuthRepository? repository})
-      : _repository = repository ?? SupabaseAuthRepository() {
+    : _repository = repository ?? SupabaseAuthRepository() {
     unawaited(_restoreSession());
   }
 
@@ -44,8 +44,9 @@ class AuthProvider extends ChangeNotifier {
     try {
       final role = _rolDesdeMetadata(session.user.userMetadata);
       await _cargarPerfil(role, session.user.id);
-    } catch (_) {
-      await _repository.signOut();
+    } catch (error) {
+      // Un fallo de red al cargar el perfil no debe borrar la sesión persistida.
+      _error = AuthErrorMapper.map(error);
       _role = null;
       _candidate = null;
       _recruiter = null;
@@ -135,10 +136,9 @@ class AuthProvider extends ChangeNotifier {
         email: normalizedEmail,
         ciudad: ciudad.trim(),
         fechaNacimiento: fechaNacimiento,
-        resumenPerfil:
-            (trimmedResumen == null || trimmedResumen.isEmpty)
-                ? null
-                : trimmedResumen,
+        resumenPerfil: (trimmedResumen == null || trimmedResumen.isEmpty)
+            ? null
+            : trimmedResumen,
       );
       await _repository.crearUsuario(profile.toMap());
 
@@ -219,13 +219,22 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _repository.signOut();
-    _loading = false;
+    if (_loading) return;
+    _loading = true;
     _error = null;
-    _role = null;
-    _candidate = null;
-    _recruiter = null;
     notifyListeners();
+
+    try {
+      await _repository.signOut();
+      _role = null;
+      _candidate = null;
+      _recruiter = null;
+    } catch (error) {
+      _error = AuthErrorMapper.map(error);
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _cargarPerfil(UserRole role, String userId) async {
