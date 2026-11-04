@@ -50,6 +50,10 @@ drop policy if exists "reclutadores_update_propio" on public.reclutadores;
 create policy "reclutadores_update_propio" on public.reclutadores
   for update using (id = auth.uid());
 
+-- RLS protege la fila, pero cambiar empresa_id permitiría leer otra empresa.
+revoke update on public.reclutadores from authenticated;
+grant update (nombre, email) on public.reclutadores to authenticated;
+
 drop policy if exists "empresas_select_de_mi_reclutador" on public.empresas;
 create policy "empresas_select_de_mi_reclutador" on public.empresas
   for select using (
