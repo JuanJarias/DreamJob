@@ -287,6 +287,15 @@ class ProfileSummaryScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _handleSignOut(BuildContext context) async {
+    final auth = context.read<AuthProvider>();
+    await auth.signOut();
+    if (!context.mounted) return;
+    if (!auth.isAuthenticated && auth.error == null) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -322,7 +331,7 @@ class ProfileSummaryScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout, color: DjColors.muted, size: 20),
             tooltip: 'Cerrar sesión',
-            onPressed: () => context.read<AuthProvider>().signOut(),
+            onPressed: () => _handleSignOut(context),
           ),
         ],
       ),
@@ -345,7 +354,7 @@ class ProfileSummaryScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 52,
                 child: OutlinedButton.icon(
-                  onPressed: () => context.read<AuthProvider>().signOut(),
+                  onPressed: () => _handleSignOut(context),
                   icon: const Icon(Icons.logout, size: 18),
                   label: const Text('Cerrar sesión'),
                   style: OutlinedButton.styleFrom(

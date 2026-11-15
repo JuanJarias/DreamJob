@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'auth/screens/login_screen.dart';
+import 'auth/screens/register_candidate_screen.dart';
+import 'auth/screens/register_recruiter_screen.dart';
+import 'auth/screens/register_role_screen.dart';
+import 'auth/screens/splash_screen.dart';
 import 'auth/state/auth_provider.dart';
-import 'router/app_router.dart';
+import 'home/home_shell.dart';
+import 'profile/profile_summary_screen.dart';
 import 'theme.dart';
 
 Future<void> main() async {
@@ -16,12 +21,12 @@ Future<void> main() async {
 
 class DreamJobApp extends StatefulWidget {
   final AuthProvider? authProvider;
-  final String initialLocation;
+  final String initialRoute;
 
   const DreamJobApp({
     super.key,
     this.authProvider,
-    this.initialLocation = '/splash',
+    this.initialRoute = '/splash',
   });
 
   @override
@@ -30,21 +35,15 @@ class DreamJobApp extends StatefulWidget {
 
 class _DreamJobAppState extends State<DreamJobApp> {
   late final AuthProvider _authProvider;
-  late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
     _authProvider = widget.authProvider ?? AuthProvider();
-    _router = createAppRouter(
-      _authProvider,
-      initialLocation: widget.initialLocation,
-    );
   }
 
   @override
   void dispose() {
-    _router.dispose();
     if (widget.authProvider == null) {
       _authProvider.dispose();
     }
@@ -58,13 +57,22 @@ class _DreamJobAppState extends State<DreamJobApp> {
       providers: [
         ChangeNotifierProvider<AuthProvider>.value(value: _authProvider),
       ],
-      child: MaterialApp.router(
+      child: MaterialApp(
         title: 'DreamJob',
         debugShowCheckedModeBanner: false,
         theme: theme,
         darkTheme: theme,
         themeMode: ThemeMode.light,
-        routerConfig: _router,
+        initialRoute: widget.initialRoute,
+        routes: {
+          '/splash': (context) => const SplashScreen(),
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterRoleScreen(),
+          '/register/candidato': (context) => const RegisterCandidateScreen(),
+          '/register/reclutador': (context) => const RegisterRecruiterScreen(),
+          '/home': (context) => const HomeShell(),
+          '/profile': (context) => const ProfileSummaryScreen(),
+        },
       ),
     );
   }

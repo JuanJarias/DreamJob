@@ -14,6 +14,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/home': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const RegisterRecruiterScreen(),
@@ -51,6 +52,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/home': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const RegisterRecruiterScreen(),
@@ -79,6 +81,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/home': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const RegisterRecruiterScreen(),
@@ -118,6 +121,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/home': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const RegisterRecruiterScreen(),

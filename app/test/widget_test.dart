@@ -10,7 +10,7 @@ void main() {
     (WidgetTester tester) async {
       final auth = AuthProvider(repository: FakeAuthRepository());
       await tester.pumpWidget(
-        DreamJobApp(authProvider: auth, initialLocation: '/login'),
+        DreamJobApp(authProvider: auth, initialRoute: '/login'),
       );
       await tester.pumpAndSettle();
 
@@ -38,7 +38,7 @@ void main() {
     (WidgetTester tester) async {
       final auth = AuthProvider(repository: FakeAuthRepository());
       await tester.pumpWidget(
-        DreamJobApp(authProvider: auth, initialLocation: '/register/candidato'),
+        DreamJobApp(authProvider: auth, initialRoute: '/register/candidato'),
       );
       await tester.pumpAndSettle();
 
@@ -68,11 +68,11 @@ void main() {
   );
 
   testWidgets(
-    'Registrar candidato exitoso redirige automáticamente a /profile',
+    'Registrar candidato exitoso redirige a /home y muestra el perfil en su pestaña',
     (WidgetTester tester) async {
       final auth = AuthProvider(repository: FakeAuthRepository());
       await tester.pumpWidget(
-        DreamJobApp(authProvider: auth, initialLocation: '/register/candidato'),
+        DreamJobApp(authProvider: auth, initialRoute: '/register/candidato'),
       );
       await tester.pumpAndSettle();
 
@@ -92,6 +92,13 @@ void main() {
       final submitBtn = find.text('Crear cuenta');
       await tester.ensureVisible(submitBtn);
       await tester.tap(submitBtn);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Deck'), findsOneWidget);
+      expect(find.text('Postulaciones'), findsOneWidget);
+      expect(find.text('Perfil'), findsOneWidget);
+
+      await tester.tap(find.text('Perfil'));
       await tester.pumpAndSettle();
 
       expect(find.text('Valentina Rodríguez'), findsOneWidget);

@@ -58,21 +58,20 @@ void main() {
           }
         });
 
-        await tester.pumpWidget(
-          DreamJobApp(authProvider: auth, initialLocation: '/login'),
-        );
-        await tester.pumpAndSettle();
-
-        // Iniciar sesión con candidato demo
+        // Iniciar sesión con candidato demo contra Supabase y verificar navegación desde Splash
         await tester.runAsync(() async {
           final ok = await auth.signIn(candidateEmail, password);
           expect(ok, isTrue);
         });
+
+        await tester.pumpWidget(DreamJobApp(authProvider: auth));
         await tester.pumpAndSettle();
 
-        // Confirmar redirección automática a /profile
         expect(auth.isAuthenticated, isTrue);
         expect(auth.role, UserRole.candidato);
+        await tester.tap(find.text('Perfil'));
+        await tester.pumpAndSettle();
+
         expect(find.text('Mi perfil'), findsOneWidget);
         expect(find.text(candidateEmail), findsOneWidget);
         expect(find.text('Candidato'), findsOneWidget);
@@ -82,6 +81,7 @@ void main() {
         await tester.runAsync(() async {
           await auth.signOut();
         });
+        await tester.pumpWidget(DreamJobApp(authProvider: auth));
         await tester.pumpAndSettle();
 
         expect(auth.isAuthenticated, isFalse);
@@ -103,21 +103,20 @@ void main() {
           }
         });
 
-        await tester.pumpWidget(
-          DreamJobApp(authProvider: auth, initialLocation: '/login'),
-        );
-        await tester.pumpAndSettle();
-
-        // Iniciar sesión con reclutador demo
+        // Iniciar sesión con reclutador demo contra Supabase y verificar navegación desde Splash
         await tester.runAsync(() async {
           final ok = await auth.signIn(recruiterEmail, password);
           expect(ok, isTrue);
         });
+
+        await tester.pumpWidget(DreamJobApp(authProvider: auth));
         await tester.pumpAndSettle();
 
-        // Confirmar redirección automática a /profile con su empresa
         expect(auth.isAuthenticated, isTrue);
         expect(auth.role, UserRole.reclutador);
+        await tester.tap(find.text('Perfil'));
+        await tester.pumpAndSettle();
+
         expect(find.text('Mi perfil'), findsOneWidget);
         expect(find.text(recruiterEmail), findsOneWidget);
         expect(find.text('Reclutador'), findsOneWidget);
@@ -129,6 +128,7 @@ void main() {
         await tester.runAsync(() async {
           await auth.signOut();
         });
+        await tester.pumpWidget(DreamJobApp(authProvider: auth));
         await tester.pumpAndSettle();
 
         expect(auth.isAuthenticated, isFalse);

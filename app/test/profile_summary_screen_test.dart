@@ -21,6 +21,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/login': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const ProfileSummaryScreen(),
@@ -59,6 +60,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/login': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const ProfileSummaryScreen(),
@@ -87,6 +89,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/login': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const ProfileSummaryScreen(),
@@ -119,6 +122,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/login': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const ProfileSummaryScreen(),
@@ -142,6 +146,7 @@ void main() {
 
         await tester.pumpWidget(
           MaterialApp(
+            routes: {'/login': (_) => const SizedBox.shrink()},
             home: ChangeNotifierProvider<AuthProvider>.value(
               value: fakeAuth,
               child: const ProfileSummaryScreen(),

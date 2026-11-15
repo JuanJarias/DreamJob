@@ -21,6 +21,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(auth.role, role);
+      expect(find.text('Perfil'), findsOneWidget);
+
+      await tester.tap(find.text('Perfil'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Mi perfil'), findsOneWidget);
       expect(find.text('sesion@example.com'), findsOneWidget);
       if (role == UserRole.reclutador) {
@@ -61,6 +66,8 @@ void main() {
     await tester.pumpWidget(DreamJobApp(authProvider: reopened));
     await tester.pumpAndSettle();
     expect(reopened.role, UserRole.candidato);
+    await tester.tap(find.text('Perfil'));
+    await tester.pumpAndSettle();
     expect(find.text('Mi perfil'), findsOneWidget);
   });
 
@@ -72,6 +79,9 @@ void main() {
     final auth = AuthProvider(repository: repository);
     addTearDown(auth.dispose);
     await tester.pumpWidget(DreamJobApp(authProvider: auth));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Perfil'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Cerrar sesión'));
