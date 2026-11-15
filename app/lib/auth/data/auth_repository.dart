@@ -29,6 +29,20 @@ abstract class AuthRepository {
   });
 
   Future<Map<String, dynamic>> obtenerReclutadorConEmpresa(String id);
+
+  Future<void> actualizarUsuario({
+    required String id,
+    required Map<String, dynamic> datos,
+  });
+
+  Future<void> actualizarReclutadorYEmpresa({
+    required String reclutadorId,
+    required String nombre,
+    required String empresaId,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  });
 }
 
 class SupabaseAuthRepository implements AuthRepository {
@@ -96,5 +110,33 @@ class SupabaseAuthRepository implements AuthRepository {
         )
         .eq('id', id)
         .single();
+  }
+
+  @override
+  Future<void> actualizarUsuario({
+    required String id,
+    required Map<String, dynamic> datos,
+  }) async {
+    await _client.from('usuarios').update(datos).eq('id', id);
+  }
+
+  @override
+  Future<void> actualizarReclutadorYEmpresa({
+    required String reclutadorId,
+    required String nombre,
+    required String empresaId,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  }) async {
+    await _client.from('reclutadores').update({
+      'nombre': nombre,
+    }).eq('id', reclutadorId);
+
+    await _client.from('empresas').update({
+      'nombre': empresaNombre,
+      'descripcion': empresaDescripcion,
+      'monograma': empresaMonograma,
+    }).eq('id', empresaId);
   }
 }

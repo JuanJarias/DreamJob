@@ -21,6 +21,14 @@ class FakeAuthProvider extends AuthProvider {
   int signUpCandidateCallCount = 0;
   Map<String, dynamic>? lastSignUpCandidateArgs;
 
+  bool updateCandidateCalled = false;
+  int updateCandidateCallCount = 0;
+  Map<String, dynamic>? lastUpdateCandidateArgs;
+
+  bool updateRecruiterCalled = false;
+  int updateRecruiterCallCount = 0;
+  Map<String, dynamic>? lastUpdateRecruiterArgs;
+
   bool signOutCalled = false;
 
   void setCandidate({
@@ -140,6 +148,67 @@ class FakeAuthProvider extends AuthProvider {
       'fechaNacimiento': fechaNacimiento,
       'resumenPerfil': resumenPerfil,
     };
+    return true;
+  }
+
+  @override
+  Future<bool> updateCandidateProfile({
+    required String nombre,
+    required String ciudad,
+    String? resumenPerfil,
+  }) async {
+    updateCandidateCalled = true;
+    updateCandidateCallCount++;
+    lastUpdateCandidateArgs = {
+      'nombre': nombre,
+      'ciudad': ciudad,
+      'resumenPerfil': resumenPerfil,
+    };
+
+    if (_customCandidate != null) {
+      _customCandidate = CandidateProfile(
+        id: _customCandidate!.id,
+        nombre: nombre,
+        email: _customCandidate!.email,
+        ciudad: ciudad,
+        fechaNacimiento: _customCandidate!.fechaNacimiento,
+        resumenPerfil: resumenPerfil,
+      );
+      notifyListeners();
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> updateRecruiterProfile({
+    required String nombre,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  }) async {
+    updateRecruiterCalled = true;
+    updateRecruiterCallCount++;
+    lastUpdateRecruiterArgs = {
+      'nombre': nombre,
+      'empresaNombre': empresaNombre,
+      'empresaDescripcion': empresaDescripcion,
+      'empresaMonograma': empresaMonograma,
+    };
+
+    if (_customRecruiter != null) {
+      _customRecruiter = RecruiterProfile(
+        id: _customRecruiter!.id,
+        nombre: nombre,
+        email: _customRecruiter!.email,
+        empresa: CompanyProfile(
+          id: _customRecruiter!.empresa.id,
+          nombre: empresaNombre,
+          descripcion: empresaDescripcion,
+          monograma: empresaMonograma,
+        ),
+      );
+      notifyListeners();
+    }
     return true;
   }
 
