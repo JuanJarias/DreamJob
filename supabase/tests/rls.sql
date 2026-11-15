@@ -53,6 +53,20 @@ begin
   assert not exists (select 1 from public.empresas where nombre = 'Empresa B'),
     'La empresa ajena debe seguir oculta';
 
+  update public.empresas
+    set nombre = 'Empresa A Actualizada',
+        descripcion = 'Nueva descripción de prueba',
+        monograma = 'EAA'
+    where id = '20000000-0000-0000-0000-000000000001';
+  get diagnostics v_count = row_count;
+  assert v_count = 1, 'El reclutador debe poder actualizar su propia empresa';
+
+  update public.empresas
+    set nombre = 'Empresa B Manipulada'
+    where id = '20000000-0000-0000-0000-000000000002';
+  get diagnostics v_count = row_count;
+  assert v_count = 0, 'El reclutador no debe poder actualizar empresas ajenas';
+
   -- Sprint 2: pruebas RLS de vacantes, tecnologías y swipes
   assert (select count(*) from public.tecnologias) >= 12,
     'El catálogo inicial de tecnologías debe estar disponible';
