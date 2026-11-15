@@ -319,14 +319,14 @@ psql -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap.sql -f supabase/schema.sql -
 
 ## 10. Roadmap
 
-El detalle de las **12 historias de usuario** y criterios de aceptación del Sprint 2 se encuentra en [docs/backlog-sprint2.md](./docs/backlog-sprint2.md).
+El Product Backlog completo, el **Objetivo del Sprint 2** y el detalle de las **12 historias de usuario** con sus criterios de aceptación se encuentran en [docs/backlog-sprint2.md](./docs/backlog-sprint2.md).
 
-| Sprint / Etapa | Alcance | Estado |
+| Sprint / Etapa | Alcance y valor entregado | Estado |
 |---|---|---|
 | Sprint 1 | Autenticación para candidato y reclutador, alta de empresa, perfil, sesión persistente y RLS (`v1.0.0`) | Completado (`v1.0.0`) |
-| Sprint 2 | Navegación principal por rol (`HomeShell`), gestión de vacantes del reclutador, preferencias y tecnologías del candidato, Deck de swipes (postular/omitir/deshacer), detalle de vacante e historial de interés ([ver backlog](./docs/backlog-sprint2.md)) | Planificado (En curso) |
-| Sprint 3 (MVP) | Revisión de candidatos por el reclutador, match bidireccional, seguimiento de postulaciones por estado, agenda de entrevistas y módulo de práctica con el Coach | Planificado |
-| Siguientes etapas | Integración OAuth con Google/Gmail para lectura de OTP, adaptación automática de hojas de vida/cartas con agente de IA y notificaciones push | En hoja de ruta |
+| Sprint 2 | **Objetivo:** permitir que reclutadores publiquen vacantes y candidatos configuren preferencias y se postulen desde un mazo interactivo de swipes ([ver backlog](./docs/backlog-sprint2.md)) | Planificado (En curso) |
+| Sprint 3 (MVP) | Match bidireccional (`HU-S3-01`), seguimiento de postulaciones (`HU-S3-02`), agenda de entrevistas (`HU-S3-03`) y módulo Coach (`HU-S3-04`) | Planificado |
+| Backlog Post-MVP | OAuth con Google/Gmail para OTP (`HU-POST-01`), agente de IA adaptador de CV/cartas (`HU-POST-02`), llenado de formularios ATS (`HU-POST-03`), notificaciones push (`HU-POST-04`) y bloqueo de empresas (`HU-POST-05`) | Fuera de alcance MVP |
 
 ---
 
