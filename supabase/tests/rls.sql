@@ -52,6 +52,87 @@ begin
 
   assert not exists (select 1 from public.empresas where nombre = 'Empresa B'),
     'La empresa ajena debe seguir oculta';
+
+  -- Sprint 2: pruebas RLS de vacantes, tecnologías y swipes
+  assert (select count(*) from public.tecnologias) >= 12,
+    'El catálogo inicial de tecnologías debe estar disponible';
+
+  insert into public.vacantes (
+    id, empresa_id, reclutador_id, titulo, descripcion, ubicacion, modalidad
+  ) values (
+    '30000000-0000-0000-0000-000000000001',
+    '20000000-0000-0000-0000-000000000001',
+    '10000000-0000-0000-0000-000000000001',
+    'Desarrollador Flutter Jr',
+    'Desarrollo de funcionalidades móviles',
+    'Cali',
+    'Híbrido'
+  );
+
+  begin
+    update public.vacantes
+      set empresa_id = '20000000-0000-0000-0000-000000000002'
+      where id = '30000000-0000-0000-0000-000000000001';
+    raise exception 'El reclutador no debe poder reasignar empresa_id de una vacante';
+  exception when insufficient_privilege then
+    null;
+  end;
+end;
+$$;
+
+-- Cambiar a usuario B para verificar visibilidad de vacante activa, aislamiento de edición y swipes
+set local request.jwt.claim.sub = '10000000-0000-0000-0000-000000000002';
+
+do $$
+declare
+  v_count integer;
+begin
+  assert (select count(*) from public.vacantes) = 1,
+    'Un usuario autenticado debe poder ver vacantes activas';
+  assert exists (select 1 from public.empresas where nombre = 'Empresa A'),
+    'La empresa con vacante activa debe ser visible para candidatos';
+
+  update public.vacantes set titulo = 'Intruso'
+    where id = '30000000-0000-0000-0000-000000000001';
+  get diagnostics v_count = row_count;
+  assert v_count = 0, 'Otro reclutador no debe poder editar vacante ajena';
+
+  begin
+    insert into public.vacantes (
+      empresa_id, reclutador_id, titulo, descripcion, ubicacion, modalidad
+    ) values (
+      '20000000-0000-0000-0000-000000000001',
+      '10000000-0000-0000-0000-000000000002',
+      'Vacante intrusa',
+      'Intento no autorizado',
+      'Bogotá',
+      'Remoto'
+    );
+    raise exception 'No debe permitir crear vacantes para otra empresa';
+  exception when insufficient_privilege then
+    null;
+  end;
+
+  insert into public.swipes (usuario_id, vacante_id, direccion)
+  values (
+    '10000000-0000-0000-0000-000000000002',
+    '30000000-0000-0000-0000-000000000001',
+    'derecha'
+  );
+  assert (select count(*) from public.swipes) = 1,
+    'El candidato debe poder registrar y consultar su propio swipe';
+
+  begin
+    insert into public.swipes (usuario_id, vacante_id, direccion)
+    values (
+      '10000000-0000-0000-0000-000000000001',
+      '30000000-0000-0000-0000-000000000001',
+      'izquierda'
+    );
+    raise exception 'No debe permitir insertar swipes a nombre de otro usuario';
+  exception when insufficient_privilege then
+    null;
+  end;
 end;
 $$;
 
