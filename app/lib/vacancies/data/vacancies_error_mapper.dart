@@ -24,7 +24,9 @@ class VacanciesErrorMapper {
         str.contains('failed host lookup') ||
         str.contains('network') ||
         str.contains('timeout') ||
-        str.contains('connection')) {
+        str.contains('connection') ||
+        str.contains('conexión') ||
+        str.contains('conexion')) {
       return 'No hay conexión a internet. Revisa tu conexión e intenta de nuevo';
     }
     return 'Ocurrió un error al procesar la vacante, intenta de nuevo';

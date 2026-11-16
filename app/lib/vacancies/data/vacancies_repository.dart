@@ -17,6 +17,11 @@ abstract class VacanciesRepository {
   Future<List<Vacancy>> obtenerVacantesEmpresa(String empresaId);
 
   Future<Vacancy?> obtenerVacantePorId(String id);
+
+  Future<Vacancy> cambiarEstadoVacante({
+    required String vacanteId,
+    required String nuevoEstado,
+  });
 }
 
 class SupabaseVacanciesRepository implements VacanciesRepository {
@@ -104,7 +109,7 @@ class SupabaseVacanciesRepository implements VacanciesRepository {
   Future<List<Vacancy>> obtenerVacantesEmpresa(String empresaId) async {
     final response = await _client
         .from('vacantes')
-        .select('*, vacante_tecnologias(tecnologias(*))')
+        .select('*, vacante_tecnologias(tecnologias(*)), swipes(id, direccion)')
         .eq('empresa_id', empresaId)
         .order('created_at', ascending: false);
 
@@ -118,11 +123,28 @@ class SupabaseVacanciesRepository implements VacanciesRepository {
   Future<Vacancy?> obtenerVacantePorId(String id) async {
     final response = await _client
         .from('vacantes')
-        .select('*, vacante_tecnologias(tecnologias(*))')
+        .select('*, vacante_tecnologias(tecnologias(*)), swipes(id, direccion)')
         .eq('id', id)
         .maybeSingle();
 
     if (response == null) return null;
     return Vacancy.fromMap(response);
+  }
+
+  @override
+  Future<Vacancy> cambiarEstadoVacante({
+    required String vacanteId,
+    required String nuevoEstado,
+  }) async {
+    await _client
+        .from('vacantes')
+        .update({'estado': nuevoEstado})
+        .eq('id', vacanteId);
+
+    final updated = await obtenerVacantePorId(vacanteId);
+    if (updated == null) {
+      throw Exception('No se encontró la vacante luego de actualizar su estado');
+    }
+    return updated;
   }
 }

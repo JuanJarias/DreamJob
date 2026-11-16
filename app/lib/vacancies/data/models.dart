@@ -94,6 +94,7 @@ class Vacancy {
   final String estado;
   final DateTime? createdAt;
   final List<Technology> tecnologias;
+  final int candidatosInteresados;
 
   const Vacancy({
     this.id,
@@ -110,6 +111,7 @@ class Vacancy {
     this.estado = VacancyStatuses.activa,
     this.createdAt,
     this.tecnologias = const [],
+    this.candidatosInteresados = 0,
   });
 
   factory Vacancy.fromMap(
@@ -150,6 +152,15 @@ class Vacancy {
       }
     }
 
+    int parsedInteresados = 0;
+    if (map['candidatos_interesados'] is num) {
+      parsedInteresados = (map['candidatos_interesados'] as num).round();
+    } else if (map['swipes'] is List) {
+      parsedInteresados = (map['swipes'] as List)
+          .where((s) => s is Map && s['direccion'] == 'derecha')
+          .length;
+    }
+
     return Vacancy(
       id: map['id'] as String?,
       empresaId: map['empresa_id'] as String,
@@ -167,6 +178,7 @@ class Vacancy {
           ? null
           : DateTime.tryParse(map['created_at'] as String),
       tecnologias: parsedTecnologias,
+      candidatosInteresados: parsedInteresados,
     );
   }
 
@@ -184,6 +196,9 @@ class Vacancy {
       'seniority': seniority,
       'estado': estado,
     };
+    if (candidatosInteresados > 0) {
+      data['candidatos_interesados'] = candidatosInteresados;
+    }
     if (includeId && id != null) {
       data['id'] = id;
     }
@@ -210,6 +225,7 @@ class Vacancy {
     String? estado,
     DateTime? createdAt,
     List<Technology>? tecnologias,
+    int? candidatosInteresados,
   }) {
     return Vacancy(
       id: id ?? this.id,
@@ -226,6 +242,8 @@ class Vacancy {
       estado: estado ?? this.estado,
       createdAt: createdAt ?? this.createdAt,
       tecnologias: tecnologias ?? this.tecnologias,
+      candidatosInteresados:
+          candidatosInteresados ?? this.candidatosInteresados,
     );
   }
 
