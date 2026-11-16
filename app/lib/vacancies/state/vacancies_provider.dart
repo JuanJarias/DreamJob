@@ -128,4 +128,32 @@ class VacanciesProvider extends ChangeNotifier {
       return null;
     }
   }
+
+  Future<bool> cambiarEstadoVacante({
+    required String vacanteId,
+    required String nuevoEstado,
+  }) async {
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updated = await _repository.cambiarEstadoVacante(
+        vacanteId: vacanteId,
+        nuevoEstado: nuevoEstado,
+      );
+      _vacantesEmpresa = _vacantesEmpresa
+          .map((v) => v.id == vacanteId ? updated : v)
+          .toList();
+      _loading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _loading = false;
+      _error = VacanciesErrorMapper.map(e);
+      notifyListeners();
+      return false;
+    }
+  }
 }
