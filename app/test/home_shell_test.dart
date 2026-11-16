@@ -1,6 +1,7 @@
 import 'package:dreamjob/auth/state/auth_provider.dart';
 import 'package:dreamjob/home/home_shell.dart';
 import 'package:dreamjob/main.dart';
+import 'package:dreamjob/vacancies/data/models.dart';
 import 'package:dreamjob/vacancies/state/vacancies_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,7 +61,7 @@ void main() {
         expect(find.text('Vacantes'), findsOneWidget);
         expect(find.text('Perfil'), findsOneWidget);
         expect(find.text('Deck'), findsNothing);
-        expect(find.text('Vacantes publicadas'), findsOneWidget);
+        expect(find.text('Mis vacantes'), findsOneWidget);
 
         await tester.tap(find.text('Perfil'));
         await tester.pumpAndSettle();
@@ -132,7 +133,7 @@ void main() {
     );
 
     testWidgets(
-      'Rol reclutador: acción Publicar vacante abre VacancyFormScreen',
+      'Rol reclutador: muestra RecruiterVacanciesScreen en la pestaña Mis vacantes y navega a crear',
       (WidgetTester tester) async {
         final fakeAuth = FakeAuthProvider()
           ..setRecruiter(
@@ -155,15 +156,57 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(find.text('Vacantes publicadas'), findsOneWidget);
-        final publishBtn = find.text('Publicar vacante');
-        expect(publishBtn, findsWidgets);
+        expect(find.text('Mis vacantes'), findsOneWidget);
+        expect(find.text('No tienes vacantes publicadas'), findsOneWidget);
+        final publishBtn = find.text('Publicar primera vacante');
+        expect(publishBtn, findsOneWidget);
 
-        await tester.tap(publishBtn.first);
+        await tester.tap(publishBtn);
         await tester.pumpAndSettle();
 
         expect(find.text('Título del cargo'), findsOneWidget);
         expect(find.text('Tecnologías requeridas'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Rol reclutador: muestra vacantes publicadas existentes en HomeShell',
+      (WidgetTester tester) async {
+        final fakeAuth = FakeAuthProvider()
+          ..setRecruiter(
+            nombre: 'Carlos Restrepo',
+            email: 'carlos@empresa.com',
+            empresaId: 'emp-innova',
+            empresaNombre: 'Innovatech',
+            empresaDescripcion: 'Tech',
+            empresaMonograma: 'INN',
+          );
+
+        final repo = FakeVacanciesRepository(
+          vacantesIniciales: [
+            const Vacancy(
+              id: 'vac-100',
+              empresaId: 'emp-innova',
+              reclutadorId: 'rec-1',
+              titulo: 'Arquitecto Mobile Flutter',
+              descripcion: 'Liderar proyectos',
+              ubicacion: 'Bogotá',
+              candidatosInteresados: 5,
+            ),
+          ],
+        );
+
+        await tester.pumpWidget(
+          DreamJobApp(
+            authProvider: fakeAuth,
+            vacanciesProvider: VacanciesProvider(repository: repo),
+            initialRoute: '/home',
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Arquitecto Mobile Flutter'), findsOneWidget);
+        expect(find.text('5 candidatos interesados'), findsOneWidget);
       },
     );
   });

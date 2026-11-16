@@ -160,5 +160,40 @@ void main() {
       expect(cleared.salarioMax, isNull);
       expect(cleared.empresaId, 'e1');
     });
+
+    test('Vacancy fromMap parses candidatosInteresados from swipes or direct field', () {
+      final mapWithSwipes = {
+        'id': 'v-swipes',
+        'empresa_id': 'emp-1',
+        'reclutador_id': 'rec-1',
+        'titulo': 'Mobile Engineer',
+        'descripcion': 'Flutter Apps',
+        'ubicacion': 'Remoto',
+        'swipes': [
+          {'id': 's1', 'direccion': 'derecha'},
+          {'id': 's2', 'direccion': 'izquierda'},
+          {'id': 's3', 'direccion': 'derecha'},
+        ],
+      };
+
+      final vacA = Vacancy.fromMap(mapWithSwipes);
+      expect(vacA.candidatosInteresados, 2);
+
+      final mapDirect = {
+        'id': 'v-direct',
+        'empresa_id': 'emp-1',
+        'reclutador_id': 'rec-1',
+        'titulo': 'Mobile Engineer',
+        'descripcion': 'Flutter Apps',
+        'ubicacion': 'Remoto',
+        'candidatos_interesados': 5,
+      };
+
+      final vacB = Vacancy.fromMap(mapDirect);
+      expect(vacB.candidatosInteresados, 5);
+
+      final copy = vacB.copyWith(candidatosInteresados: 8);
+      expect(copy.candidatosInteresados, 8);
+    });
   });
 }

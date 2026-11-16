@@ -49,14 +49,16 @@ class FakeAuthProvider extends AuthProvider {
     required String empresaNombre,
     required String empresaDescripcion,
     required String empresaMonograma,
+    String empresaId = 'fake-emp-1',
+    String recruiterId = 'fake-rec-1',
   }) {
     _customRole = UserRole.reclutador;
     _customRecruiter = RecruiterProfile(
-      id: 'fake-rec-1',
+      id: recruiterId,
       nombre: nombre,
       email: email,
       empresa: CompanyProfile(
-        id: 'fake-emp-1',
+        id: empresaId,
         nombre: empresaNombre,
         descripcion: empresaDescripcion,
         monograma: empresaMonograma,

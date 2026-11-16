@@ -4,6 +4,7 @@ import '../auth/data/models.dart';
 import '../auth/state/auth_provider.dart';
 import '../profile/profile_summary_screen.dart';
 import '../theme.dart';
+import '../vacancies/screens/recruiter_vacancies_screen.dart';
 import '../widgets/common.dart';
 
 class HomeShell extends StatefulWidget {
@@ -74,18 +75,9 @@ class _HomeShellState extends State<HomeShell> {
             ),
             ProfileSummaryScreen(),
           ]
-        : <Widget>[
-            _PlaceholderTab(
-              appBarTitle: 'Mis vacantes',
-              heading: 'Vacantes publicadas',
-              description:
-                  'Aquí podrás crear, editar y administrar las ofertas laborales de tu empresa.',
-              icon: Icons.business_center_outlined,
-              actionLabel: 'Publicar vacante',
-              actionIcon: Icons.add_circle_outline,
-              onAction: () => Navigator.pushNamed(context, '/vacancies/new'),
-            ),
-            const ProfileSummaryScreen(),
+        : const <Widget>[
+            RecruiterVacanciesScreen(),
+            ProfileSummaryScreen(),
           ];
 
     final navItems = isCandidato
@@ -157,18 +149,12 @@ class _PlaceholderTab extends StatelessWidget {
   final String heading;
   final String description;
   final IconData icon;
-  final String? actionLabel;
-  final IconData? actionIcon;
-  final VoidCallback? onAction;
 
   const _PlaceholderTab({
     required this.appBarTitle,
     required this.heading,
     required this.description,
     required this.icon,
-    this.actionLabel,
-    this.actionIcon,
-    this.onAction,
   });
 
   @override
@@ -184,15 +170,6 @@ class _PlaceholderTab extends StatelessWidget {
             fontWeight: FontWeight.w700,
           ),
         ),
-        actions: onAction != null
-            ? [
-                IconButton(
-                  icon: Icon(actionIcon ?? Icons.add, color: DjColors.navy),
-                  tooltip: actionLabel ?? 'Acción',
-                  onPressed: onAction,
-                ),
-              ]
-            : null,
       ),
       body: SafeArea(
         child: Center(
@@ -232,29 +209,6 @@ class _PlaceholderTab extends StatelessWidget {
                       height: 1.5,
                     ),
                   ),
-                  if (onAction != null && actionLabel != null) ...[
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: FilledButton.icon(
-                        onPressed: onAction,
-                        icon: Icon(actionIcon ?? Icons.add, size: 18),
-                        label: Text(actionLabel!),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: DjColors.navy,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
