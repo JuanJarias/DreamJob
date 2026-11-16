@@ -11,6 +11,9 @@ import 'home/home_shell.dart';
 import 'profile/edit_profile_screen.dart';
 import 'profile/profile_summary_screen.dart';
 import 'theme.dart';
+import 'vacancies/data/models.dart';
+import 'vacancies/screens/vacancy_form_screen.dart';
+import 'vacancies/state/vacancies_provider.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
@@ -22,11 +25,13 @@ Future<void> main() async {
 
 class DreamJobApp extends StatefulWidget {
   final AuthProvider? authProvider;
+  final VacanciesProvider? vacanciesProvider;
   final String initialRoute;
 
   const DreamJobApp({
     super.key,
     this.authProvider,
+    this.vacanciesProvider,
     this.initialRoute = '/splash',
   });
 
@@ -36,17 +41,22 @@ class DreamJobApp extends StatefulWidget {
 
 class _DreamJobAppState extends State<DreamJobApp> {
   late final AuthProvider _authProvider;
+  late final VacanciesProvider _vacanciesProvider;
 
   @override
   void initState() {
     super.initState();
     _authProvider = widget.authProvider ?? AuthProvider();
+    _vacanciesProvider = widget.vacanciesProvider ?? VacanciesProvider();
   }
 
   @override
   void dispose() {
     if (widget.authProvider == null) {
       _authProvider.dispose();
+    }
+    if (widget.vacanciesProvider == null) {
+      _vacanciesProvider.dispose();
     }
     super.dispose();
   }
@@ -57,6 +67,9 @@ class _DreamJobAppState extends State<DreamJobApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthProvider>.value(value: _authProvider),
+        ChangeNotifierProvider<VacanciesProvider>.value(
+          value: _vacanciesProvider,
+        ),
       ],
       child: MaterialApp(
         title: 'DreamJob',
@@ -74,6 +87,16 @@ class _DreamJobAppState extends State<DreamJobApp> {
           '/home': (context) => const HomeShell(),
           '/profile': (context) => const ProfileSummaryScreen(),
           '/profile/edit': (context) => const EditProfileScreen(),
+          '/vacancies/new': (context) => const VacancyFormScreen(),
+        },
+        onGenerateRoute: (settings) {
+          if (settings.name == '/vacancies/edit') {
+            final vacante = settings.arguments as Vacancy?;
+            return MaterialPageRoute(
+              builder: (context) => VacancyFormScreen(vacancy: vacante),
+            );
+          }
+          return null;
         },
       ),
     );

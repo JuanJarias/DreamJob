@@ -4,6 +4,7 @@ import '../auth/data/models.dart';
 import '../auth/state/auth_provider.dart';
 import '../profile/profile_summary_screen.dart';
 import '../theme.dart';
+import '../vacancies/screens/recruiter_vacancies_screen.dart';
 import '../widgets/common.dart';
 
 class HomeShell extends StatefulWidget {
@@ -75,13 +76,7 @@ class _HomeShellState extends State<HomeShell> {
             ProfileSummaryScreen(),
           ]
         : const <Widget>[
-            _PlaceholderTab(
-              appBarTitle: 'Mis vacantes',
-              heading: 'Vacantes publicadas',
-              description:
-                  'Aquí podrás crear, editar y administrar las ofertas laborales de tu empresa.',
-              icon: Icons.business_center_outlined,
-            ),
+            RecruiterVacanciesScreen(),
             ProfileSummaryScreen(),
           ];
 
