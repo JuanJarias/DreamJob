@@ -21,9 +21,11 @@ abstract class VacanciesRepository {
 
 class SupabaseVacanciesRepository implements VacanciesRepository {
   SupabaseVacanciesRepository({SupabaseClient? client})
-      : _client = client ?? Supabase.instance.client;
+      : _providedClient = client;
 
-  final SupabaseClient _client;
+  final SupabaseClient? _providedClient;
+
+  SupabaseClient get _client => _providedClient ?? Supabase.instance.client;
 
   @override
   Future<List<Technology>> obtenerCatalogoTecnologias() async {

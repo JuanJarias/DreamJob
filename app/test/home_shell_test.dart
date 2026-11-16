@@ -1,9 +1,11 @@
 import 'package:dreamjob/auth/state/auth_provider.dart';
 import 'package:dreamjob/home/home_shell.dart';
 import 'package:dreamjob/main.dart';
+import 'package:dreamjob/vacancies/state/vacancies_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'fakes/fake_vacancies_repository.dart';
 import 'helpers/fake_auth_provider.dart';
 
 void main() {
@@ -126,6 +128,42 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Pantalla Login'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Rol reclutador: acción Publicar vacante abre VacancyFormScreen',
+      (WidgetTester tester) async {
+        final fakeAuth = FakeAuthProvider()
+          ..setRecruiter(
+            nombre: 'Carlos Restrepo',
+            email: 'carlos@empresa.com',
+            empresaNombre: 'Innovatech',
+            empresaDescripcion: 'Tech',
+            empresaMonograma: 'INN',
+          );
+        final fakeVacancies = VacanciesProvider(
+          repository: FakeVacanciesRepository(),
+        );
+
+        await tester.pumpWidget(
+          DreamJobApp(
+            authProvider: fakeAuth,
+            vacanciesProvider: fakeVacancies,
+            initialRoute: '/home',
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Vacantes publicadas'), findsOneWidget);
+        final publishBtn = find.text('Publicar vacante');
+        expect(publishBtn, findsWidgets);
+
+        await tester.tap(publishBtn.first);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Título del cargo'), findsOneWidget);
+        expect(find.text('Tecnologías requeridas'), findsOneWidget);
       },
     );
   });
