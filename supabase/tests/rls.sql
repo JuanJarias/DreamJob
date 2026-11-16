@@ -103,7 +103,11 @@ declare
 begin
   assert (select count(*) from public.vacantes) = 1,
     'Un usuario autenticado debe poder ver vacantes activas';
-  assert exists (select 1 from public.empresas where nombre = 'Empresa A'),
+  assert exists (
+    select 1 from public.empresas
+    where id = '20000000-0000-0000-0000-000000000001'
+      and nombre = 'Empresa A Actualizada'
+  ),
     'La empresa con vacante activa debe ser visible para candidatos';
 
   update public.vacantes set titulo = 'Intruso'
