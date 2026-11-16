@@ -60,6 +60,15 @@ create policy "empresas_select_de_mi_reclutador" on public.empresas
     id in (select empresa_id from public.reclutadores where id = auth.uid())
   );
 
+drop policy if exists "empresas_update_de_mi_reclutador" on public.empresas;
+create policy "empresas_update_de_mi_reclutador" on public.empresas
+  for update using (
+    id in (select empresa_id from public.reclutadores where id = auth.uid())
+  )
+  with check (
+    id in (select empresa_id from public.reclutadores where id = auth.uid())
+  );
+
 create or replace function public.registrar_reclutador(
   p_nombre text,
   p_email text,

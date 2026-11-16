@@ -90,6 +90,34 @@ class FakeAuthRepository implements AuthRepository {
     return {...reclutador, 'empresas': empresa};
   }
 
+  @override
+  Future<void> actualizarUsuario({
+    required String id,
+    required Map<String, dynamic> datos,
+  }) async {
+    final actual = _usuarios[id] ?? {};
+    _usuarios[id] = {...actual, ...datos};
+  }
+
+  @override
+  Future<void> actualizarReclutadorYEmpresa({
+    required String reclutadorId,
+    required String nombre,
+    required String empresaId,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  }) async {
+    final reclutador = _reclutadores[reclutadorId] ?? {};
+    _reclutadores[reclutadorId] = {...reclutador, 'nombre': nombre};
+    _empresas[empresaId] = {
+      'id': empresaId,
+      'nombre': empresaNombre,
+      'descripcion': empresaDescripcion,
+      'monograma': empresaMonograma,
+    };
+  }
+
   User _buildUser(String id, String email, Map<String, dynamic> metadata) {
     return User(
       id: id,

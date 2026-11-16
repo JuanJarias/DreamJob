@@ -329,6 +329,11 @@ class ProfileSummaryScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.edit_outlined, color: DjColors.ink, size: 20),
+            tooltip: 'Editar perfil',
+            onPressed: () => Navigator.pushNamed(context, '/profile/edit'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout, color: DjColors.muted, size: 20),
             tooltip: 'Cerrar sesión',
             onPressed: () => _handleSignOut(context),
@@ -349,7 +354,29 @@ class ProfileSummaryScreen extends StatelessWidget {
                 _buildCandidateView(context, auth.candidate!)
               else
                 _buildRecruiterView(context, auth.recruiter!),
-              const SizedBox(height: 28),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton.icon(
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/profile/edit'),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: const Text('Editar perfil'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: DjColors.navy,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(26),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 height: 52,

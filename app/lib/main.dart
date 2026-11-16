@@ -8,6 +8,7 @@ import 'auth/screens/register_role_screen.dart';
 import 'auth/screens/splash_screen.dart';
 import 'auth/state/auth_provider.dart';
 import 'home/home_shell.dart';
+import 'profile/edit_profile_screen.dart';
 import 'profile/profile_summary_screen.dart';
 import 'theme.dart';
 
@@ -72,6 +73,7 @@ class _DreamJobAppState extends State<DreamJobApp> {
           '/register/reclutador': (context) => const RegisterRecruiterScreen(),
           '/home': (context) => const HomeShell(),
           '/profile': (context) => const ProfileSummaryScreen(),
+          '/profile/edit': (context) => const EditProfileScreen(),
         },
       ),
     );

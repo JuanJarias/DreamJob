@@ -28,6 +28,24 @@ class CandidateProfile {
     );
   }
 
+  CandidateProfile copyWith({
+    String? id,
+    String? nombre,
+    String? email,
+    String? ciudad,
+    DateTime? fechaNacimiento,
+    String? resumenPerfil,
+  }) {
+    return CandidateProfile(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+      email: email ?? this.email,
+      ciudad: ciudad ?? this.ciudad,
+      fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
+      resumenPerfil: resumenPerfil ?? this.resumenPerfil,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -68,6 +86,19 @@ class CompanyProfile {
       monograma: map['monograma'] as String,
     );
   }
+  CompanyProfile copyWith({
+    String? id,
+    String? nombre,
+    String? descripcion,
+    String? monograma,
+  }) {
+    return CompanyProfile(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+      descripcion: descripcion ?? this.descripcion,
+      monograma: monograma ?? this.monograma,
+    );
+  }
 }
 
 class RecruiterProfile {
@@ -82,6 +113,20 @@ class RecruiterProfile {
     required this.email,
     required this.empresa,
   });
+
+  RecruiterProfile copyWith({
+    String? id,
+    String? nombre,
+    String? email,
+    CompanyProfile? empresa,
+  }) {
+    return RecruiterProfile(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+      email: email ?? this.email,
+      empresa: empresa ?? this.empresa,
+    );
+  }
 
   factory RecruiterProfile.fromMap(Map<String, dynamic> map) {
     return RecruiterProfile(

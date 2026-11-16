@@ -218,6 +218,152 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateCandidateProfile({
+    required String nombre,
+    required String ciudad,
+    String? resumenPerfil,
+  }) async {
+    final current = _candidate;
+    if (current == null) {
+      _error = 'No se encontró el perfil de candidato';
+      notifyListeners();
+      return false;
+    }
+
+    final trimmedNombre = nombre.trim();
+    final trimmedCiudad = ciudad.trim();
+    final trimmedResumen = resumenPerfil?.trim();
+
+    if (trimmedNombre.isEmpty || trimmedCiudad.isEmpty) {
+      _error = 'Completa todos los campos obligatorios';
+      notifyListeners();
+      return false;
+    }
+
+    if (trimmedResumen != null && trimmedResumen.length > 280) {
+      _error = 'El resumen profesional no puede superar los 280 caracteres';
+      notifyListeners();
+      return false;
+    }
+
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final sanitizedResumen =
+          (trimmedResumen == null || trimmedResumen.isEmpty)
+              ? null
+              : trimmedResumen;
+
+      await _repository.actualizarUsuario(
+        id: current.id,
+        datos: {
+          'nombre': trimmedNombre,
+          'ciudad': trimmedCiudad,
+          'resumen_perfil': sanitizedResumen,
+        },
+      );
+
+      _candidate = CandidateProfile(
+        id: current.id,
+        nombre: trimmedNombre,
+        email: current.email,
+        ciudad: trimmedCiudad,
+        fechaNacimiento: current.fechaNacimiento,
+        resumenPerfil: sanitizedResumen,
+      );
+      _loading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateRecruiterProfile({
+    required String nombre,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  }) async {
+    final current = _recruiter;
+    if (current == null) {
+      _error = 'No se encontró el perfil de reclutador';
+      notifyListeners();
+      return false;
+    }
+
+    final trimmedNombre = nombre.trim();
+    final trimmedEmpresaNombre = empresaNombre.trim();
+    final trimmedEmpresaDesc = empresaDescripcion.trim();
+    final trimmedMonograma = empresaMonograma.trim().toUpperCase();
+
+    if (trimmedNombre.isEmpty ||
+        trimmedEmpresaNombre.isEmpty ||
+        trimmedEmpresaDesc.isEmpty ||
+        trimmedMonograma.isEmpty) {
+      _error = 'Completa todos los campos obligatorios';
+      notifyListeners();
+      return false;
+    }
+
+    if (trimmedEmpresaDesc.length > 280) {
+      _error =
+          'La descripción de la empresa no puede superar los 280 caracteres';
+      notifyListeners();
+      return false;
+    }
+
+    if (trimmedMonograma.isEmpty ||
+        trimmedMonograma.length > 3 ||
+        !RegExp(r'^[A-ZÁÉÍÓÚÑ]+$').hasMatch(trimmedMonograma)) {
+      _error = 'El monograma debe tener entre 1 y 3 letras';
+      notifyListeners();
+      return false;
+    }
+
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.actualizarReclutadorYEmpresa(
+        reclutadorId: current.id,
+        nombre: trimmedNombre,
+        empresaId: current.empresa.id,
+        empresaNombre: trimmedEmpresaNombre,
+        empresaDescripcion: trimmedEmpresaDesc,
+        empresaMonograma: trimmedMonograma,
+      );
+
+      _recruiter = RecruiterProfile(
+        id: current.id,
+        nombre: trimmedNombre,
+        email: current.email,
+        empresa: CompanyProfile(
+          id: current.empresa.id,
+          nombre: trimmedEmpresaNombre,
+          descripcion: trimmedEmpresaDesc,
+          monograma: trimmedMonograma,
+        ),
+      );
+      _loading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> signOut() async {
     if (_loading) return;
     _loading = true;
