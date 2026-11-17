@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/validators.dart';
 import '../../theme.dart';
@@ -76,7 +75,7 @@ class _RegisterRecruiterScreenState extends State<RegisterRecruiterScreen> {
       return;
     }
 
-    await auth.signUpRecruiter(
+    final ok = await auth.signUpRecruiter(
       nombre: _nombreController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -84,6 +83,17 @@ class _RegisterRecruiterScreenState extends State<RegisterRecruiterScreen> {
       empresaDescripcion: _empresaDescripcionController.text.trim(),
       empresaMonograma: _empresaMonogramaController.text.trim().toUpperCase(),
     );
+    if (!mounted || !ok) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+  }
+
+  void _goBack() {
+    context.read<AuthProvider>().clearError();
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacementNamed(context, '/register');
+    }
   }
 
   Widget _buildMonogramPreview() {
@@ -157,10 +167,7 @@ class _RegisterRecruiterScreenState extends State<RegisterRecruiterScreen> {
           padding: const EdgeInsets.only(left: 8),
           child: Center(
             child: CircleBack(
-              onTap: () {
-                auth.clearError();
-                context.go('/register');
-              },
+              onTap: _goBack,
             ),
           ),
         ),
@@ -326,13 +333,7 @@ class _RegisterRecruiterScreenState extends State<RegisterRecruiterScreen> {
                 const SizedBox(height: 16),
                 Center(
                   child: TextButton(
-                    onPressed:
-                        auth.loading
-                            ? null
-                            : () {
-                              auth.clearError();
-                              context.go('/register');
-                            },
+                    onPressed: auth.loading ? null : _goBack,
                     child: const Text(
                       'Volver',
                       style: TextStyle(

@@ -5,7 +5,7 @@ Aplicación móvil de búsqueda de empleo y prácticas profesionales con dinámi
 ![Flutter](https://img.shields.io/badge/Flutter-Estable-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%2B%20Auth-3ECF8E?logo=supabase&logoColor=white)
-![Estado](https://img.shields.io/badge/Estado-Sprint%201%20(v1.0.0)-success)
+![Estado](https://img.shields.io/badge/Estado-Sprint%202%20(v2.0.0)-success)
 
 ---
 
@@ -52,10 +52,10 @@ El **Sprint 1 (Autenticación — `v1.0.0`)** se encuentra implementado e integr
 | Resumen de perfil según rol | Implementado | Vista diferenciada para candidato (incluye edad calculada) y reclutador (incluye tarjeta de empresa) |
 | Sesión persistente y cierre de sesión | Implementado | El Splash verifica la sesión guardada en Supabase y redirige a `/profile` o `/login` |
 | Seguridad por fila (RLS) en Postgres | Implementado | Políticas RLS en `empresas`, `usuarios` y `reclutadores` más la función `registrar_reclutador` |
-| Navegación principal por rol (`HomeShell`) | Sprint 2 | Contenedor principal con barra de navegación inferior diferenciada para candidato y reclutador |
-| Preferencias laborales, tecnologías y edición de perfil | Sprint 2 | Seniority, salario mínimo, modalidad preferida, selección de tecnologías y edición de datos |
-| Publicación y gestión de vacantes (Reclutador) | Sprint 2 | Alta, edición, listado y cambio de estado de ofertas por empresa con tecnologías requeridas |
-| Deck de vacantes con swipes y vista de detalle (Candidato) | Sprint 2 | Deslizar a derecha (postular) o izquierda (omitir) con opción de deshacer e historial de interés |
+| Navegación principal por rol (`HomeShell`) | Implementado (Sprint 2) | Contenedor principal con barra de navegación inferior diferenciada para candidato y reclutador |
+| Preferencias laborales, tecnologías y edición de perfil | Implementado (Sprint 2) | Seniority, salario mínimo, modalidad preferida, selección de tecnologías y edición de datos |
+| Publicación y gestión de vacantes (Reclutador) | Implementado (Sprint 2) | Alta, edición, listado y cambio de estado de ofertas por empresa con tecnologías requeridas |
+| Deck de vacantes con swipes, detalle e historial (Candidato) | Implementado (Sprint 2) | Deslizar a derecha (postular) o izquierda (omitir) con deshacer, detalle completo y bandeja de interés |
 | Revisión de postulantes y match bidireccional | Sprint 3 (MVP) | Evaluación de candidatos por el reclutador y generación del match mutuo |
 | Seguimiento de postulaciones, entrevistas y coach | Sprint 3 (MVP) | Estados de aplicación, agenda de entrevistas y sesiones de práctica con puntaje y consejos |
 | Inicio de sesión con Google y conexión con Gmail | Roadmap posterior | OAuth (`google_sub`) y lectura automática de códigos OTP |
@@ -66,13 +66,13 @@ El **Sprint 1 (Autenticación — `v1.0.0`)** se encuentra implementado e integr
 
 ## 4. Arquitectura y stack
 
-### Stack utilizado en el Sprint 1
-- **Aplicación móvil:** Flutter / Dart (canal estable).
-- **Estado:** `provider` (`ChangeNotifier` mediante `AuthProvider`).
-- **Rutas y navegación:** `go_router` con redirección automática según el estado de sesión.
+### Stack utilizado (Sprint 1 y Sprint 2)
+- **Aplicación móvil:** Flutter `3.44.8` / Dart `3.12.2` (canal estable).
+- **Estado:** `provider` (`MultiProvider` + `ChangeNotifier` mediante `AuthProvider`, `VacanciesProvider` y `SwipesProvider`).
+- **Rutas y navegación:** Rutas Nombradas en `MaterialApp` (`routes` y `onGenerateRoute`) con `Navigator` y contenedor `HomeShell` según rol.
 - **Backend:** Supabase (`supabase_flutter`)
   - **Auth:** correo y contraseña con confirmación de email desactivada.
-  - **Base de datos:** PostgreSQL con Row Level Security (RLS) activo por `auth.uid()`.
+  - **Base de datos:** PostgreSQL con Row Level Security (RLS) activo por `auth.uid()` y permisos por columna.
   - **RPC `registrar_reclutador`:** función en PL/pgSQL (`security definer`) para insertar empresa y reclutador en una misma transacción.
 
 ### Diagrama de arquitectura
@@ -80,20 +80,20 @@ El **Sprint 1 (Autenticación — `v1.0.0`)** se encuentra implementado e integr
 ```mermaid
 flowchart LR
     subgraph App["App Móvil (Flutter)"]
-        UI["Pantallas y Widgets\n(Login, Registro, Perfil)"]
-        Router["go_router\n(6 rutas + redirect)"]
-        State["AuthProvider\n(provider)"]
-        Repo["AuthRepository"]
+        UI["Pantallas y Widgets\n(Auth, HomeShell, Deck, Vacantes, Perfil)"]
+        Router["Rutas Nombradas\n(MaterialApp.routes / onGenerateRoute)"]
+        State["Providers\n(Auth · Vacancies · Swipes)"]
+        Repo["Repositorios\n(Auth · Vacancies · Swipes)"]
     end
 
     subgraph Supabase["Supabase"]
         Auth["Supabase Auth\n(auth.users)"]
         RPC["RPC: registrar_reclutador"]
-        DB[("PostgreSQL + RLS\nusuarios · reclutadores · empresas")]
+        DB[("PostgreSQL + RLS\nusuarios · reclutadores · empresas\ntecnologias · vacantes · swipes")]
     end
 
     UI --> State
-    State --> Router
+    UI --> Router
     State --> Repo
     Repo --> Auth
     Repo --> RPC
@@ -148,48 +148,28 @@ DreamJob/
 │   ├── guion-video-sprint1.md               # Guion de demostración del Sprint 1 (máx. 2 min)
 │   └── sprint1-seguimiento.md               # Bitácora técnica de verificación con Supabase
 ├── supabase/
-│   └── schema.sql                           # Tablas empresas, usuarios, reclutadores, RLS y RPC registrar_reclutador
+│   ├── schema.sql                           # Tablas de Sprint 1 + Sprint 2, RLS, permisos y RPC
+│   ├── seed_sprint2_demo.sql                # Datos de demostración idempotentes para el Sprint 2
+│   └── tests/
+│       ├── bootstrap.sql                    # Contrato mínimo de Auth para PostgreSQL de pruebas
+│       └── rls.sql                          # Pruebas de aislamiento y políticas RLS con rollback
 └── app/                                     # Proyecto Flutter (paquete icesi.edu.co.dreamjob)
     ├── .env.example                         # Plantilla con SUPABASE_URL y SUPABASE_ANON_KEY vacías
-    ├── pubspec.yaml                         # Dependencias: supabase_flutter, provider, go_router
+    ├── pubspec.yaml                         # Dependencias: supabase_flutter, provider
     ├── lib/
-    │   ├── main.dart                        # Inicialización de Supabase, MultiProvider y MaterialApp.router
+    │   ├── main.dart                        # Inicialización de Supabase, MultiProvider y Rutas Nombradas
     │   ├── theme.dart                       # Paleta de colores y tema visual de DreamJob
     │   ├── widgets/
     │   │   └── common.dart                  # Componentes visuales compartidos (OwlBadge, DjCard, CompanyMark, etc.)
     │   ├── core/
-    │   │   └── validators.dart              # Validadores en español (email, password, required, date, monogram)
-    │   ├── router/
-    │   │   └── app_router.dart              # Configuración de las 6 rutas, SplashScreen y redirect por sesión
-    │   ├── auth/
-    │   │   ├── data/
-    │   │   │   ├── models.dart              # UserRole, CandidateProfile, CompanyProfile y RecruiterProfile
-    │   │   │   ├── auth_repository.dart     # AuthRepository y SupabaseAuthRepository
-    │   │   │   └── auth_error_mapper.dart   # Mapeo de excepciones de Supabase y red al español
-    │   │   ├── state/
-    │   │   │   └── auth_provider.dart       # AuthProvider (ChangeNotifier) conectado a AuthRepository
-    │   │   ├── widgets/
-    │   │   │   ├── auth_text_field.dart
-    │   │   │   ├── auth_password_field.dart
-    │   │   │   ├── auth_primary_button.dart
-    │   │   │   └── auth_error_banner.dart
-    │   │   └── screens/
-    │   │       ├── login_screen.dart
-    │   │       ├── register_role_screen.dart
-    │   │       ├── register_candidate_screen.dart
-    │   │       └── register_recruiter_screen.dart
-    │   └── profile/
-    │       └── profile_summary_screen.dart  # Pantalla de resumen de perfil para candidato y reclutador
-    └── test/
-        ├── widget_test.dart
-        ├── profile_summary_screen_test.dart
-        ├── register_recruiter_screen_test.dart
-        ├── auth_error_mapper_test.dart
-        ├── demo_users_live_test.dart
-        ├── fakes/
-        │   └── fake_auth_repository.dart
-        └── helpers/
-            └── fake_auth_provider.dart
+    │   │   └── validators.dart              # Validadores en español
+    │   ├── home/
+    │   │   └── home_shell.dart              # Navegación inferior diferenciada por rol (candidato/reclutador)
+    │   ├── auth/                            # Autenticación, modelos de usuario/empresa y SplashScreen
+    │   ├── profile/                         # Resumen, edición de perfil y preferencias laborales del candidato
+    │   ├── vacancies/                       # Modelos, afinidad, repositorio/estado, Deck, Detalle y flujo reclutador
+    │   └── swipes/                          # Modelos, SwipesRepository y SwipesProvider (like, skip y deshacer)
+    └── test/                                # 17 suites de pruebas unitarias, de widgets y fakes en memoria
 ```
 
 ---
@@ -250,7 +230,7 @@ DreamJob/
 
 | Ruta | Clase de pantalla | Archivo | Función |
 |---|---|---|---|
-| `/splash` | `SplashScreen` | `app/lib/router/app_router.dart` | Comprueba si hay sesión activa al abrir la app y redirige a `/profile` o `/login`. |
+| `/splash` | `SplashScreen` | `app/lib/auth/screens/splash_screen.dart` | Comprueba si hay sesión activa al abrir la app y redirige al contenedor principal o `/login`. |
 | `/login` | `LoginScreen` | `app/lib/auth/screens/login_screen.dart` | Formulario de correo y contraseña, banner de error y enlace a `/register`. |
 | `/register` | `RegisterRoleScreen` | `app/lib/auth/screens/register_role_screen.dart` | Selección de rol ("¿Cómo quieres usar DreamJob?"): candidato o reclutador. |
 | `/register/candidato` | `RegisterCandidateScreen` | `app/lib/auth/screens/register_candidate_screen.dart` | Registro de candidato: nombre, correo, contraseña (mínimo 8 caracteres), confirmación, ciudad, fecha de nacimiento y resumen opcional (máx. 280 caracteres). |
@@ -287,26 +267,60 @@ Todos los mensajes de validación y respuestas de error se muestran en español:
 
 ---
 
-## 9. Cómo contribuir
+## 9. Sprint 2 — Oferta y Descubrimiento
+
+- **Guion de demostración (Sprint 2):** [docs/guion-video-sprint2.md](./docs/guion-video-sprint2.md)
+- **Backlog y criterios de aceptación:** [docs/backlog-sprint2.md](./docs/backlog-sprint2.md)
+- **Semilla de demostración:** [supabase/seed_sprint2_demo.sql](./supabase/seed_sprint2_demo.sql)
+
+### Alcance implementado (`v2.0.0`)
+- Navegación con **Rutas Nombradas** en `app/lib/main.dart` y contenedor `HomeShell` con barra inferior diferenciada por rol (`candidato`: *Deck*, *Postulaciones*, *Perfil*; `reclutador`: *Vacantes*, *Perfil*).
+- **Reclutador:** creación, edición, listado y cambio de estado (`activa`, `pausada`, `cerrada`) de vacantes (`VacancyFormScreen`, `RecruiterVacanciesScreen`) con conteo de interesados y edición de perfil/empresa (`EditProfileScreen`).
+- **Candidato:** configuración de preferencias y tecnologías (`CandidatePreferencesScreen`), cálculo de afinidad (`affinity.dart`), mazo deslizable con opción de *Deshacer* (`DeckScreen`), vista de detalle completo (`JobDetailScreen`) y bandeja de vacantes de interés (`CandidateLikedJobsScreen`).
+- **Verificación:** 74 pruebas unitarias y de widgets offline, 2 pruebas en vivo contra Supabase (`demo_users_live_test.dart`) y suite SQL de RLS en PostgreSQL 17 (`supabase/tests/rls.sql`).
+
+---
+
+## 10. Cómo contribuir
 
 Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, formato de commits, checklist de calidad antes de abrir un Pull Request y el workflow de CI que corre `flutter analyze` y `flutter test` en cada PR hacia `dev` y `main`.
 
+### Verificación del Sprint 1
+
+Desde `app/`, ejecutar `flutter analyze` y `flutter test`. Las pruebas cubren formularios, perfiles de ambos roles, restauración de sesión y recuperación de errores de red al abrir la app o cerrar sesión.
+
+Las dos pruebas de `test/demo_users_live_test.dart` se omiten explícitamente cuando faltan credenciales. Para ejecutarlas contra Supabase, agregar `DEMO_PASSWORD`, `DEMO_CANDIDATO_EMAIL` y `DEMO_RECLUTADOR_EMAIL` al archivo local `app/.env` y ejecutar:
+
+```bash
+flutter test test/demo_users_live_test.dart --dart-define-from-file=.env
+```
+
+Estas pruebas esperan los perfiles demo existentes descritos en el archivo de prueba; no crean cuentas. No publicar contraseñas ni el contenido de `.env`.
+
+El job `database-rls` de CI comprueba el aislamiento de cuentas y empresas con PostgreSQL 17. Para repetirlo en una base PostgreSQL **vacía y desechable**, desde la raíz:
+
+```bash
+psql -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap.sql -f supabase/schema.sql -f supabase/tests/rls.sql
+```
+
+`bootstrap.sql` reproduce únicamente el contrato mínimo de Auth para las pruebas; no debe ejecutarse en Supabase. En un proyecto Supabase existente, volver a aplicar `supabase/schema.sql` para restringir la actualización de `reclutadores` a `nombre` y `email`. Esto impide cambiar `empresa_id` para acceder a datos de otra empresa. Las pruebas locales no modifican el proyecto remoto.
+
 ---
 
-## 10. Roadmap
+## 11. Roadmap
 
-El detalle de las **12 historias de usuario** y criterios de aceptación del Sprint 2 se encuentra en [docs/backlog-sprint2.md](./docs/backlog-sprint2.md).
+El Product Backlog completo, el **Objetivo del Sprint 2** y el detalle de las **12 historias de usuario** con sus criterios de aceptación se encuentran en [docs/backlog-sprint2.md](./docs/backlog-sprint2.md).
 
-| Sprint / Etapa | Alcance | Estado |
+| Sprint / Etapa | Alcance y valor entregado | Estado |
 |---|---|---|
 | Sprint 1 | Autenticación para candidato y reclutador, alta de empresa, perfil, sesión persistente y RLS (`v1.0.0`) | Completado (`v1.0.0`) |
-| Sprint 2 | Navegación principal por rol (`HomeShell`), gestión de vacantes del reclutador, preferencias y tecnologías del candidato, Deck de swipes (postular/omitir/deshacer), detalle de vacante e historial de interés ([ver backlog](./docs/backlog-sprint2.md)) | Planificado (En curso) |
-| Sprint 3 (MVP) | Revisión de candidatos por el reclutador, match bidireccional, seguimiento de postulaciones por estado, agenda de entrevistas y módulo de práctica con el Coach | Planificado |
-| Siguientes etapas | Integración OAuth con Google/Gmail para lectura de OTP, adaptación automática de hojas de vida/cartas con agente de IA y notificaciones push | En hoja de ruta |
+| Sprint 2 | **Objetivo:** permitir que reclutadores publiquen vacantes y candidatos configuren preferencias y se postulen desde un mazo interactivo de swipes ([ver backlog](./docs/backlog-sprint2.md)) | Completado (`v2.0.0`) |
+| Sprint 3 (MVP) | Match bidireccional (`HU-S3-01`), seguimiento de postulaciones (`HU-S3-02`), agenda de entrevistas (`HU-S3-03`) y módulo Coach (`HU-S3-04`) | Planificado |
+| Backlog Post-MVP | OAuth con Google/Gmail para OTP (`HU-POST-01`), agente de IA adaptador de CV/cartas (`HU-POST-02`), llenado de formularios ATS (`HU-POST-03`), notificaciones push (`HU-POST-04`) y bloqueo de empresas (`HU-POST-05`) | Fuera de alcance MVP |
 
 ---
 
-## 11. Equipo y licencia
+## 12. Equipo y licencia
 
 ### Equipo
 - **Joshua Rivera** ([@JRivera340](https://github.com/JRivera340)) — Núcleo, configuración de Flutter y Supabase, router, autenticación e integración.

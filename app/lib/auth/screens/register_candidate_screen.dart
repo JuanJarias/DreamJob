@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/validators.dart';
 import '../../theme.dart';
@@ -79,7 +78,7 @@ class _RegisterCandidateScreenState extends State<RegisterCandidateScreen> {
     final birthDate =
         _selectedBirthDate ?? DateTime.parse(_fechaController.text.trim());
 
-    await auth.signUpCandidate(
+    final ok = await auth.signUpCandidate(
       nombre: _nombreController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -87,6 +86,17 @@ class _RegisterCandidateScreenState extends State<RegisterCandidateScreen> {
       fechaNacimiento: birthDate,
       resumenPerfil: _resumenController.text.trim(),
     );
+    if (!mounted || !ok) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+  }
+
+  void _goBack() {
+    context.read<AuthProvider>().clearError();
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacementNamed(context, '/register');
+    }
   }
 
   @override
@@ -100,10 +110,7 @@ class _RegisterCandidateScreenState extends State<RegisterCandidateScreen> {
           padding: const EdgeInsets.only(left: 8),
           child: Center(
             child: CircleBack(
-              onTap: () {
-                auth.clearError();
-                context.go('/register');
-              },
+              onTap: _goBack,
             ),
           ),
         ),

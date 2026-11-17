@@ -1,16 +1,25 @@
-# Backlog del Sprint 2 — DreamJob
+# Backlog del Producto y del Sprint 2 — DreamJob
 
-## 1. Alcance del Sprint 2
+## 1. Objetivo del Sprint 2
 
-Con el módulo de autenticación y registro por rol implementado en el **Sprint 1 (`v1.0.0`)**, el **Sprint 2** aborda el flujo central de oferta y descubrimiento entre reclutadores y candidatos como paso previo al **MVP del Sprint 3**:
-
-- **Sprint 1 (Completado):** Registro de candidato y reclutador (con creación de empresa), inicio de sesión, sesión persistente y resumen inicial de perfil.
-- **Sprint 2 (Actual):** Navegación principal diferenciada por rol, edición de perfil y preferencias laborales/tecnologías del candidato, publicación y gestión de vacantes por parte del reclutador, y exploración del mazo de vacantes (*Deck*) con deslizamiento (*swipe* para postular u omitir) y vista de detalle.
-- **Sprint 3 (MVP):** Revisión de candidatos interesados por parte del reclutador para concretar el match mutuo, seguimiento de postulaciones por estado, agenda de entrevistas y módulo de práctica con el Coach.
+> **Objetivo del Sprint 2:** Permitir que los reclutadores publiquen y administren vacantes con sus requisitos técnicos, y que los candidatos configuren sus preferencias laborales y descubran oportunidades mediante un mazo interactivo de tarjetas (swipes) para postularse u omitir ágilmente, sentando las bases del matching bidireccional hacia el MVP.
 
 ---
 
-## 2. Historias de Usuario y Criterios de Aceptación
+## 2. Visión General del Product Backlog
+
+El producto se organiza en cuatro horizontes para distinguir el alcance entregado, el sprint actual, el cierre del MVP y las historias que quedan fuera de este ciclo:
+
+| Horizonte | Estado | Alcance principal |
+|---|---|---|
+| **Sprint 1 — Autenticación (`v1.0.0`)** | Completado | Registro de candidato y reclutador (con creación de empresa), inicio de sesión, sesión persistente y resumen inicial de perfil. |
+| **Sprint 2 — Oferta y Descubrimiento** | En curso (Actual) | Publicación y gestión de vacantes por el reclutador, configuración de preferencias/tecnologías del candidato, exploración del mazo de vacantes (Deck con swipes y detalle) y bandeja de vacantes de interés (`HU-01` a `HU-12`). |
+| **Sprint 3 — Cierre del MVP** | Planificado (Siguiente) | Evaluación de postulantes por parte del reclutador para generar el match mutuo, seguimiento de estados de postulación, agenda de entrevistas y simulador de preparación con Coach (`HU-S3-01` a `HU-S3-04`). |
+| **Backlog Post-MVP** | Fuera de alcance MVP | Integración OAuth con Google/Gmail (OTP), agente de IA para adaptar CV/cartas y llenar formularios externos, notificaciones push y filtros avanzados (`HU-POST-01` a `HU-POST-05`). |
+
+---
+
+## 3. Sprint Backlog — Sprint 2 (Historias de Usuario y Criterios de Aceptación)
 
 ### Módulo 1 — Base de Datos, Estado y Navegación Principal
 
@@ -116,11 +125,34 @@ Con el módulo de autenticación y registro por rol implementado en el **Sprint 
 - **Criterios de aceptación:**
   1. Pruebas automatizadas en `app/test/` que verifican el mazo de tarjetas y la acción de deshacer en `DeckScreen`, la vista `JobDetailScreen`, el formulario `VacancyFormScreen`, el listado en `RecruiterVacanciesScreen` y la pantalla `CandidatePreferencesScreen`.
   2. Carga de al menos 4 vacantes activas de demostración asociadas a la cuenta demo de reclutadora (`laura.demo@dreamjob.co`) para recorrer el flujo completo desde la cuenta demo de candidato (`carlos.demo@dreamjob.co`).
-  3. Análisis estático (`dart analyze`) sin errores y suite de pruebas pasando en integración continua.
+  3. Análisis estático (`dart analyze`) y pruebas SQL de RLS sin errores, con suite de pruebas pasando en integración continua.
 
 ---
 
-## 3. Resumen de Tablas del Sprint 2 en Supabase
+## 4. Resto del Product Backlog (Fuera del Sprint 2)
+
+### 4.1. Sprint 3 — Cierre del MVP (Historias planificadas)
+
+| ID | Historia de Usuario | Descripción de valor |
+|---|---|---|
+| **HU-S3-01** | **Revisión de postulantes y Match bidireccional** | Como reclutador, quiero visualizar los perfiles de candidatos que dieron swipe positivo a mis vacantes para aprobar o descartar candidatos y generar el match mutuo cuando exista interés de ambas partes. |
+| **HU-S3-02** | **Seguimiento de postulaciones por estado** | Como candidato, quiero visualizar la evolución de mis postulaciones (enviada, en revisión, match confirmado o cerrada) para saber en qué etapa del proceso me encuentro. |
+| **HU-S3-03** | **Agenda y gestión de entrevistas** | Como candidato y reclutador, quiero programar y consultar entrevistas asociadas a un match confirmado con fecha, hora, modalidad y notas de preparación. |
+| **HU-S3-04** | **Módulo de preparación con Coach de entrevistas** | Como candidato, quiero acceder a sesiones simuladas de práctica para entrevistas con historial, puntaje y recomendaciones basadas en el método STAR. |
+
+### 4.2. Backlog Post-MVP (Historias fuera del alcance del MVP)
+
+| ID | Historia de Usuario | Descripción de valor |
+|---|---|---|
+| **HU-POST-01** | **Inicio de sesión con Google y lectura de OTP en Gmail** | Como candidato, quiero vincular mi cuenta de Google (`gmail.readonly`) para iniciar sesión con OAuth y automatizar la lectura de códigos de verificación en procesos de postulación. |
+| **HU-POST-02** | **Agente de IA para adaptación de hoja de vida y carta** | Como candidato, quiero que un agente adapte automáticamente mi hoja de vida y carta de presentación resaltando palabras clave según cada vacante con cálculo de puntaje ATS. |
+| **HU-POST-03** | **Llenado automático de formularios y bitácora ATS** | Como candidato, quiero que el agente diligencie preguntas frecuentes de formularios externos y registre una bitácora auditable de cada acción enviada. |
+| **HU-POST-04** | **Notificaciones push en tiempo real** | Como usuario de la app, quiero recibir alertas móviles inmediatas cuando ocurra un match nuevo, cambie el estado de una postulación o se agende una entrevista. |
+| **HU-POST-05** | **Bloqueo de empresas y filtros salariales estrictos** | Como candidato, quiero excluir empresas específicas de mi mazo y filtrar estrictamente ofertas según rango salarial verificado. |
+
+---
+
+## 5. Resumen de Tablas del Sprint 2 en Supabase
 
 | Tabla | Columnas principales | Reglas RLS |
 |---|---|---|

@@ -4,10 +4,11 @@ import 'package:flutter/foundation.dart';
 import '../data/auth_error_mapper.dart';
 import '../data/auth_repository.dart';
 import '../data/models.dart';
+import '../../vacancies/data/technology.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider({AuthRepository? repository})
-      : _repository = repository ?? SupabaseAuthRepository() {
+    : _repository = repository ?? SupabaseAuthRepository() {
     unawaited(_restoreSession());
   }
 
@@ -44,8 +45,9 @@ class AuthProvider extends ChangeNotifier {
     try {
       final role = _rolDesdeMetadata(session.user.userMetadata);
       await _cargarPerfil(role, session.user.id);
-    } catch (_) {
-      await _repository.signOut();
+    } catch (error) {
+      // Un fallo de red al cargar el perfil no debe borrar la sesión persistida.
+      _error = AuthErrorMapper.map(error);
       _role = null;
       _candidate = null;
       _recruiter = null;
@@ -135,10 +137,9 @@ class AuthProvider extends ChangeNotifier {
         email: normalizedEmail,
         ciudad: ciudad.trim(),
         fechaNacimiento: fechaNacimiento,
-        resumenPerfil:
-            (trimmedResumen == null || trimmedResumen.isEmpty)
-                ? null
-                : trimmedResumen,
+        resumenPerfil: (trimmedResumen == null || trimmedResumen.isEmpty)
+            ? null
+            : trimmedResumen,
       );
       await _repository.crearUsuario(profile.toMap());
 
@@ -218,14 +219,223 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signOut() async {
-    await _repository.signOut();
-    _loading = false;
+  Future<bool> updateCandidateProfile({
+    required String nombre,
+    required String ciudad,
+    String? resumenPerfil,
+  }) async {
+    final current = _candidate;
+    if (current == null) {
+      _error = 'No se encontró el perfil de candidato';
+      notifyListeners();
+      return false;
+    }
+
+    final trimmedNombre = nombre.trim();
+    final trimmedCiudad = ciudad.trim();
+    final trimmedResumen = resumenPerfil?.trim();
+
+    if (trimmedNombre.isEmpty || trimmedCiudad.isEmpty) {
+      _error = 'Completa todos los campos obligatorios';
+      notifyListeners();
+      return false;
+    }
+
+    if (trimmedResumen != null && trimmedResumen.length > 280) {
+      _error = 'El resumen profesional no puede superar los 280 caracteres';
+      notifyListeners();
+      return false;
+    }
+
+    _loading = true;
     _error = null;
-    _role = null;
-    _candidate = null;
-    _recruiter = null;
     notifyListeners();
+
+    try {
+      final sanitizedResumen =
+          (trimmedResumen == null || trimmedResumen.isEmpty)
+              ? null
+              : trimmedResumen;
+
+      await _repository.actualizarUsuario(
+        id: current.id,
+        datos: {
+          'nombre': trimmedNombre,
+          'ciudad': trimmedCiudad,
+          'resumen_perfil': sanitizedResumen,
+        },
+      );
+
+      _candidate = current.copyWith(
+        nombre: trimmedNombre,
+        ciudad: trimmedCiudad,
+        resumenPerfil: sanitizedResumen,
+      );
+      _loading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateCandidatePreferences({
+    required String modalidadPreferida,
+    int? salarioMinimo,
+    required String seniority,
+    required List<Technology> tecnologias,
+  }) async {
+    final current = _candidate;
+    if (current == null) {
+      _error = 'No se encontró el perfil de candidato';
+      notifyListeners();
+      return false;
+    }
+
+    if (tecnologias.isEmpty) {
+      _error = 'Debes seleccionar al menos una tecnología';
+      notifyListeners();
+      return false;
+    }
+
+    if (salarioMinimo != null && salarioMinimo < 0) {
+      _error = 'Ingresa un salario mínimo válido';
+      notifyListeners();
+      return false;
+    }
+
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.actualizarPreferenciasCandidato(
+        id: current.id,
+        modalidadPreferida: modalidadPreferida,
+        salarioMinimo: salarioMinimo,
+        seniority: seniority,
+        tecnologiaIds: tecnologias.map((t) => t.id).toList(),
+      );
+
+      _candidate = current.copyWith(
+        modalidadPreferida: modalidadPreferida,
+        salarioMinimo: salarioMinimo,
+        clearSalarioMinimo: salarioMinimo == null,
+        seniority: seniority,
+        tecnologias: List<Technology>.from(tecnologias),
+      );
+      _loading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateRecruiterProfile({
+    required String nombre,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  }) async {
+    final current = _recruiter;
+    if (current == null) {
+      _error = 'No se encontró el perfil de reclutador';
+      notifyListeners();
+      return false;
+    }
+
+    final trimmedNombre = nombre.trim();
+    final trimmedEmpresaNombre = empresaNombre.trim();
+    final trimmedEmpresaDesc = empresaDescripcion.trim();
+    final trimmedMonograma = empresaMonograma.trim().toUpperCase();
+
+    if (trimmedNombre.isEmpty ||
+        trimmedEmpresaNombre.isEmpty ||
+        trimmedEmpresaDesc.isEmpty ||
+        trimmedMonograma.isEmpty) {
+      _error = 'Completa todos los campos obligatorios';
+      notifyListeners();
+      return false;
+    }
+
+    if (trimmedEmpresaDesc.length > 280) {
+      _error =
+          'La descripción de la empresa no puede superar los 280 caracteres';
+      notifyListeners();
+      return false;
+    }
+
+    if (trimmedMonograma.isEmpty ||
+        trimmedMonograma.length > 3 ||
+        !RegExp(r'^[A-ZÁÉÍÓÚÑ]+$').hasMatch(trimmedMonograma)) {
+      _error = 'El monograma debe tener entre 1 y 3 letras';
+      notifyListeners();
+      return false;
+    }
+
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.actualizarReclutadorYEmpresa(
+        reclutadorId: current.id,
+        nombre: trimmedNombre,
+        empresaId: current.empresa.id,
+        empresaNombre: trimmedEmpresaNombre,
+        empresaDescripcion: trimmedEmpresaDesc,
+        empresaMonograma: trimmedMonograma,
+      );
+
+      _recruiter = RecruiterProfile(
+        id: current.id,
+        nombre: trimmedNombre,
+        email: current.email,
+        empresa: CompanyProfile(
+          id: current.empresa.id,
+          nombre: trimmedEmpresaNombre,
+          descripcion: trimmedEmpresaDesc,
+          monograma: trimmedMonograma,
+        ),
+      );
+      _loading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> signOut() async {
+    if (_loading) return;
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.signOut();
+      _role = null;
+      _candidate = null;
+      _recruiter = null;
+    } catch (error) {
+      _error = AuthErrorMapper.map(error);
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _cargarPerfil(UserRole role, String userId) async {

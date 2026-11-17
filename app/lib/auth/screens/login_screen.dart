@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/validators.dart';
 import '../../theme.dart';
@@ -35,10 +34,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    await auth.signIn(
+    final ok = await auth.signIn(
       _emailController.text.trim(),
       _passwordController.text,
     );
+    if (!mounted || !ok) return;
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
   }
 
   @override
@@ -121,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ? null
                             : () {
                               auth.clearError();
-                              context.go('/register');
+                              Navigator.pushNamed(context, '/register');
                             },
                     child: const Text(
                       '¿No tienes cuenta? Crear cuenta',

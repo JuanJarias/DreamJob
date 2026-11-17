@@ -12,6 +12,17 @@ class Validators {
     return null;
   }
 
+  static String? maxLength(
+    String? value,
+    int max, [
+    String fieldName = 'Este campo',
+  ]) {
+    if (value != null && value.trim().length > max) {
+      return '$fieldName no puede superar los $max caracteres';
+    }
+    return null;
+  }
+
   static String? email(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'El correo electrónico es obligatorio';
