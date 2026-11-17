@@ -1,6 +1,7 @@
 import 'package:dreamjob/auth/data/auth_repository.dart';
 import 'package:dreamjob/auth/data/models.dart';
 import 'package:dreamjob/auth/state/auth_provider.dart';
+import 'package:dreamjob/vacancies/data/technology.dart';
 import '../fakes/fake_auth_repository.dart';
 
 class FakeAuthProvider extends AuthProvider {
@@ -25,6 +26,10 @@ class FakeAuthProvider extends AuthProvider {
   int updateCandidateCallCount = 0;
   Map<String, dynamic>? lastUpdateCandidateArgs;
 
+  bool updatePreferencesCalled = false;
+  int updatePreferencesCallCount = 0;
+  Map<String, dynamic>? lastUpdatePreferencesArgs;
+
   bool updateRecruiterCalled = false;
   int updateRecruiterCallCount = 0;
   Map<String, dynamic>? lastUpdateRecruiterArgs;
@@ -35,17 +40,26 @@ class FakeAuthProvider extends AuthProvider {
     required String nombre,
     required String email,
     required String ciudad,
+    String candidateId = 'fake-cand-1',
     DateTime? fechaNacimiento,
     String? resumenPerfil,
+    String? modalidadPreferida,
+    int? salarioMinimo,
+    String? seniority,
+    List<Technology> tecnologias = const [],
   }) {
     _customRole = UserRole.candidato;
     _customCandidate = CandidateProfile(
-      id: 'fake-cand-1',
+      id: candidateId,
       nombre: nombre,
       email: email,
       ciudad: ciudad,
       fechaNacimiento: fechaNacimiento ?? DateTime(2000, 5, 15),
       resumenPerfil: resumenPerfil,
+      modalidadPreferida: modalidadPreferida,
+      salarioMinimo: salarioMinimo,
+      seniority: seniority,
+      tecnologias: tecnologias,
     );
     _customRecruiter = null;
     notifyListeners();
@@ -168,14 +182,47 @@ class FakeAuthProvider extends AuthProvider {
     };
 
     if (_customCandidate != null) {
-      _customCandidate = CandidateProfile(
-        id: _customCandidate!.id,
+      _customCandidate = _customCandidate!.copyWith(
         nombre: nombre,
-        email: _customCandidate!.email,
         ciudad: ciudad,
-        fechaNacimiento: _customCandidate!.fechaNacimiento,
         resumenPerfil: resumenPerfil,
       );
+      notifyListeners();
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> updateCandidatePreferences({
+    required String modalidadPreferida,
+    int? salarioMinimo,
+    required String seniority,
+    required List<Technology> tecnologias,
+  }) async {
+    updatePreferencesCalled = true;
+    updatePreferencesCallCount++;
+    lastUpdatePreferencesArgs = {
+      'modalidadPreferida': modalidadPreferida,
+      'salarioMinimo': salarioMinimo,
+      'seniority': seniority,
+      'tecnologias': tecnologias,
+    };
+
+    if (tecnologias.isEmpty) {
+      _customError = 'Debes seleccionar al menos una tecnología';
+      notifyListeners();
+      return false;
+    }
+
+    if (_customCandidate != null) {
+      _customCandidate = _customCandidate!.copyWith(
+        modalidadPreferida: modalidadPreferida,
+        salarioMinimo: salarioMinimo,
+        clearSalarioMinimo: salarioMinimo == null,
+        seniority: seniority,
+        tecnologias: List<Technology>.from(tecnologias),
+      );
+      _customError = null;
       notifyListeners();
     }
     return true;

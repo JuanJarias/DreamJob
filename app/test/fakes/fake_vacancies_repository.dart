@@ -116,6 +116,14 @@ class FakeVacanciesRepository implements VacanciesRepository {
   }
 
   @override
+  Future<List<Vacancy>> obtenerVacantesActivas() async {
+    _checkError();
+    return _vacantes
+        .where((v) => v.estado == VacancyStatuses.activa)
+        .toList();
+  }
+
+  @override
   Future<Vacancy?> obtenerVacantePorId(String id) async {
     _checkError();
     for (final v in _vacantes) {

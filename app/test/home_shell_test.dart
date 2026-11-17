@@ -1,11 +1,13 @@
 import 'package:dreamjob/auth/state/auth_provider.dart';
 import 'package:dreamjob/home/home_shell.dart';
 import 'package:dreamjob/main.dart';
+import 'package:dreamjob/swipes/state/swipes_provider.dart';
 import 'package:dreamjob/vacancies/data/models.dart';
 import 'package:dreamjob/vacancies/state/vacancies_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'fakes/fake_swipes_repository.dart';
 import 'fakes/fake_vacancies_repository.dart';
 import 'helpers/fake_auth_provider.dart';
 
@@ -21,8 +23,17 @@ void main() {
             ciudad: 'Cali',
           );
 
+        final fakeSwipes = SwipesProvider(
+          swipesRepository: FakeSwipesRepository(),
+          vacanciesRepository: FakeVacanciesRepository(),
+        );
+
         await tester.pumpWidget(
-          DreamJobApp(authProvider: fakeAuth, initialRoute: '/home'),
+          DreamJobApp(
+            authProvider: fakeAuth,
+            swipesProvider: fakeSwipes,
+            initialRoute: '/home',
+          ),
         );
         await tester.pumpAndSettle();
 
@@ -53,8 +64,16 @@ void main() {
             empresaMonograma: 'TS',
           );
 
+        final fakeVacancies = VacanciesProvider(
+          repository: FakeVacanciesRepository(),
+        );
+
         await tester.pumpWidget(
-          DreamJobApp(authProvider: fakeAuth, initialRoute: '/home'),
+          DreamJobApp(
+            authProvider: fakeAuth,
+            vacanciesProvider: fakeVacancies,
+            initialRoute: '/home',
+          ),
         );
         await tester.pumpAndSettle();
 

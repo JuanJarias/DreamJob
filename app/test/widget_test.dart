@@ -1,8 +1,12 @@
 import 'package:dreamjob/auth/state/auth_provider.dart';
 import 'package:dreamjob/main.dart';
+import 'package:dreamjob/swipes/state/swipes_provider.dart';
+import 'package:dreamjob/vacancies/state/vacancies_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'fakes/fake_auth_repository.dart';
+import 'fakes/fake_swipes_repository.dart';
+import 'fakes/fake_vacancies_repository.dart';
 
 void main() {
   testWidgets(
@@ -37,8 +41,20 @@ void main() {
     'RegisterCandidateScreen valida campos vacíos, email inválido y contraseña corta',
     (WidgetTester tester) async {
       final auth = AuthProvider(repository: FakeAuthRepository());
+      final swipes = SwipesProvider(
+        swipesRepository: FakeSwipesRepository(),
+        vacanciesRepository: FakeVacanciesRepository(),
+      );
+      final vacancies = VacanciesProvider(
+        repository: FakeVacanciesRepository(),
+      );
       await tester.pumpWidget(
-        DreamJobApp(authProvider: auth, initialRoute: '/register/candidato'),
+        DreamJobApp(
+          authProvider: auth,
+          swipesProvider: swipes,
+          vacanciesProvider: vacancies,
+          initialRoute: '/register/candidato',
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -71,8 +87,20 @@ void main() {
     'Registrar candidato exitoso redirige a /home y muestra el perfil en su pestaña',
     (WidgetTester tester) async {
       final auth = AuthProvider(repository: FakeAuthRepository());
+      final swipes = SwipesProvider(
+        swipesRepository: FakeSwipesRepository(),
+        vacanciesRepository: FakeVacanciesRepository(),
+      );
+      final vacancies = VacanciesProvider(
+        repository: FakeVacanciesRepository(),
+      );
       await tester.pumpWidget(
-        DreamJobApp(authProvider: auth, initialRoute: '/register/candidato'),
+        DreamJobApp(
+          authProvider: auth,
+          swipesProvider: swipes,
+          vacanciesProvider: vacancies,
+          initialRoute: '/register/candidato',
+        ),
       );
       await tester.pumpAndSettle();
 
