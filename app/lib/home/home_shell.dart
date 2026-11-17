@@ -4,9 +4,9 @@ import '../auth/data/models.dart';
 import '../auth/state/auth_provider.dart';
 import '../profile/profile_summary_screen.dart';
 import '../theme.dart';
+import '../vacancies/screens/candidate_liked_jobs_screen.dart';
 import '../vacancies/screens/deck_screen.dart';
 import '../vacancies/screens/recruiter_vacancies_screen.dart';
-import '../widgets/common.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -61,13 +61,7 @@ class _HomeShellState extends State<HomeShell> {
     final pages = isCandidato
         ? const <Widget>[
             DeckScreen(),
-            _PlaceholderTab(
-              appBarTitle: 'Mis postulaciones',
-              heading: 'Vacantes de interés',
-              description:
-                  'Aquí verás el historial de vacantes a las que les diste swipe positivo.',
-              icon: Icons.work_outline,
-            ),
+            CandidateLikedJobsScreen(),
             ProfileSummaryScreen(),
           ]
         : const <Widget>[
@@ -133,81 +127,6 @@ class _HomeShellState extends State<HomeShell> {
           ),
           type: BottomNavigationBarType.fixed,
           items: navItems,
-        ),
-      ),
-    );
-  }
-}
-
-class _PlaceholderTab extends StatelessWidget {
-  final String appBarTitle;
-  final String heading;
-  final String description;
-  final IconData icon;
-
-  const _PlaceholderTab({
-    required this.appBarTitle,
-    required this.heading,
-    required this.description,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: FrostedTop(
-        title: Text(
-          appBarTitle,
-          style: const TextStyle(
-            color: DjColors.ink,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: DjCard(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: DjColors.tint,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Icon(icon, color: DjColors.navy, size: 30),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    heading,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: DjColors.ink,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    description,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: DjColors.muted,
-                      fontSize: 14,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
       ),
     );

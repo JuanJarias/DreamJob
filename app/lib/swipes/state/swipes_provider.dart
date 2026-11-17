@@ -20,6 +20,7 @@ class SwipesProvider extends ChangeNotifier {
 
   bool _loading = false;
   bool _submitting = false;
+  bool _initialized = false;
   String? _error;
   List<Vacancy> _deck = [];
   List<SwipeRecord> _swipes = [];
@@ -28,12 +29,22 @@ class SwipesProvider extends ChangeNotifier {
 
   bool get loading => _loading;
   bool get submitting => _submitting;
+  bool get initialized => _initialized;
   String? get error => _error;
   List<Vacancy> get deck => _deck;
   List<SwipeRecord> get swipes => _swipes;
-  List<SwipeRecord> get likedSwipes => _swipes
-      .where((s) => s.direccion == SwipeDirections.derecha)
-      .toList();
+  List<SwipeRecord> get likedSwipes {
+    final liked = _swipes
+        .where((s) => s.direccion == SwipeDirections.derecha)
+        .toList();
+    liked.sort((a, b) {
+      if (a.createdAt == null && b.createdAt == null) return 0;
+      if (a.createdAt == null) return 1;
+      if (b.createdAt == null) return -1;
+      return b.createdAt!.compareTo(a.createdAt!);
+    });
+    return liked;
+  }
   SwipeRecord? get lastSkippedSwipe => _lastSkippedSwipe;
   bool get canUndo => _lastSkippedSwipe != null && _lastSkippedVacancy != null;
 
@@ -49,6 +60,7 @@ class SwipesProvider extends ChangeNotifier {
     CandidateProfile? candidate,
   }) async {
     _loading = true;
+    _initialized = true;
     _error = null;
     notifyListeners();
 

@@ -44,7 +44,8 @@ void main() {
 
         await tester.tap(find.text('Postulaciones'));
         await tester.pumpAndSettle();
-        expect(find.text('Vacantes de interés'), findsOneWidget);
+        expect(find.text('Mis postulaciones'), findsOneWidget);
+        expect(find.text('Aún no tienes vacantes de interés'), findsOneWidget);
 
         await tester.tap(find.text('Perfil'));
         await tester.pumpAndSettle();
