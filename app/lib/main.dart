@@ -8,10 +8,13 @@ import 'auth/screens/register_role_screen.dart';
 import 'auth/screens/splash_screen.dart';
 import 'auth/state/auth_provider.dart';
 import 'home/home_shell.dart';
+import 'profile/candidate_preferences_screen.dart';
 import 'profile/edit_profile_screen.dart';
 import 'profile/profile_summary_screen.dart';
+import 'swipes/state/swipes_provider.dart';
 import 'theme.dart';
 import 'vacancies/data/models.dart';
+import 'vacancies/screens/job_detail_screen.dart';
 import 'vacancies/screens/vacancy_form_screen.dart';
 import 'vacancies/state/vacancies_provider.dart';
 
@@ -26,12 +29,14 @@ Future<void> main() async {
 class DreamJobApp extends StatefulWidget {
   final AuthProvider? authProvider;
   final VacanciesProvider? vacanciesProvider;
+  final SwipesProvider? swipesProvider;
   final String initialRoute;
 
   const DreamJobApp({
     super.key,
     this.authProvider,
     this.vacanciesProvider,
+    this.swipesProvider,
     this.initialRoute = '/splash',
   });
 
@@ -42,12 +47,14 @@ class DreamJobApp extends StatefulWidget {
 class _DreamJobAppState extends State<DreamJobApp> {
   late final AuthProvider _authProvider;
   late final VacanciesProvider _vacanciesProvider;
+  late final SwipesProvider _swipesProvider;
 
   @override
   void initState() {
     super.initState();
     _authProvider = widget.authProvider ?? AuthProvider();
     _vacanciesProvider = widget.vacanciesProvider ?? VacanciesProvider();
+    _swipesProvider = widget.swipesProvider ?? SwipesProvider();
   }
 
   @override
@@ -57,6 +64,9 @@ class _DreamJobAppState extends State<DreamJobApp> {
     }
     if (widget.vacanciesProvider == null) {
       _vacanciesProvider.dispose();
+    }
+    if (widget.swipesProvider == null) {
+      _swipesProvider.dispose();
     }
     super.dispose();
   }
@@ -70,6 +80,7 @@ class _DreamJobAppState extends State<DreamJobApp> {
         ChangeNotifierProvider<VacanciesProvider>.value(
           value: _vacanciesProvider,
         ),
+        ChangeNotifierProvider<SwipesProvider>.value(value: _swipesProvider),
       ],
       child: MaterialApp(
         title: 'DreamJob',
@@ -87,6 +98,8 @@ class _DreamJobAppState extends State<DreamJobApp> {
           '/home': (context) => const HomeShell(),
           '/profile': (context) => const ProfileSummaryScreen(),
           '/profile/edit': (context) => const EditProfileScreen(),
+          '/profile/preferences': (context) =>
+              const CandidatePreferencesScreen(),
           '/vacancies/new': (context) => const VacancyFormScreen(),
         },
         onGenerateRoute: (settings) {
@@ -95,6 +108,22 @@ class _DreamJobAppState extends State<DreamJobApp> {
             return MaterialPageRoute(
               builder: (context) => VacancyFormScreen(vacancy: vacante),
             );
+          }
+          if (settings.name == '/vacancies/detail') {
+            final args = settings.arguments;
+            if (args is JobDetailArguments) {
+              return MaterialPageRoute(
+                builder: (context) => JobDetailScreen(
+                  vacancy: args.vacancy,
+                  showActions: args.showActions,
+                ),
+              );
+            }
+            if (args is Vacancy) {
+              return MaterialPageRoute(
+                builder: (context) => JobDetailScreen(vacancy: args),
+              );
+            }
           }
           return null;
         },

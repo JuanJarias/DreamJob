@@ -4,6 +4,7 @@ import '../auth/data/models.dart';
 import '../auth/state/auth_provider.dart';
 import '../profile/profile_summary_screen.dart';
 import '../theme.dart';
+import '../vacancies/screens/deck_screen.dart';
 import '../vacancies/screens/recruiter_vacancies_screen.dart';
 import '../widgets/common.dart';
 
@@ -59,13 +60,7 @@ class _HomeShellState extends State<HomeShell> {
     final isCandidato = auth.role == UserRole.candidato;
     final pages = isCandidato
         ? const <Widget>[
-            _PlaceholderTab(
-              appBarTitle: 'Explorar vacantes',
-              heading: 'Deck de vacantes',
-              description:
-                  'Aquí explorarás las vacantes compatibles mediante tarjetas deslizables para postularte u omitir.',
-              icon: Icons.style_outlined,
-            ),
+            DeckScreen(),
             _PlaceholderTab(
               appBarTitle: 'Mis postulaciones',
               heading: 'Vacantes de interés',

@@ -4,6 +4,7 @@ import '../auth/data/models.dart';
 import '../auth/state/auth_provider.dart';
 import '../auth/widgets/auth_error_banner.dart';
 import '../theme.dart';
+import '../vacancies/data/salary_formatter.dart';
 import '../widgets/common.dart';
 
 class ProfileSummaryScreen extends StatelessWidget {
@@ -157,6 +158,62 @@ class ProfileSummaryScreen extends StatelessWidget {
                 label: 'Resumen de perfil',
                 value: resumen,
               ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        DjCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Preferencias laborales',
+                    style: TextStyle(
+                      color: DjColors.ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  TextButton.icon(
+                    key: const Key('btn_candidate_preferences'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/profile/preferences'),
+                    icon: const Icon(Icons.tune, size: 16),
+                    label: const Text('Configurar'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Modalidad: ${candidate.modalidadPreferida ?? 'Sin configurar'} · Nivel: ${candidate.seniority ?? 'Sin configurar'}',
+                style: const TextStyle(color: DjColors.muted, fontSize: 13),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                candidate.salarioMinimo != null
+                    ? 'Expectativa salarial: Desde \$ ${formatThousands(candidate.salarioMinimo!)} COP'
+                    : 'Expectativa salarial: Sin especificar',
+                style: const TextStyle(color: DjColors.muted, fontSize: 13),
+              ),
+              if (candidate.tecnologias.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: candidate.tecnologias
+                      .map(
+                        (t) => StatusPill(
+                          label: t.nombre,
+                          fg: DjColors.navy,
+                          bg: DjColors.tint,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ],
           ),
         ),

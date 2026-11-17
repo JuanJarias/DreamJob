@@ -4,6 +4,7 @@ import '../../auth/state/auth_provider.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../data/models.dart';
+import '../data/salary_formatter.dart';
 import '../state/vacancies_provider.dart';
 
 class RecruiterVacanciesScreen extends StatefulWidget {
@@ -77,23 +78,6 @@ class _RecruiterVacanciesScreenState extends State<RecruiterVacanciesScreen> {
         ),
       );
     }
-  }
-
-  static String _formatNumber(int number) {
-    final str = number.toString();
-    final reg = RegExp(r'\B(?=(\d{3})+(?!\d))');
-    return str.replaceAll(reg, '.');
-  }
-
-  static String formatSalary(int? min, int? max, String moneda) {
-    if (min != null && max != null) {
-      return '\$ ${_formatNumber(min)} - \$ ${_formatNumber(max)} $moneda';
-    } else if (min != null) {
-      return 'Desde \$ ${_formatNumber(min)} $moneda';
-    } else if (max != null) {
-      return 'Hasta \$ ${_formatNumber(max)} $moneda';
-    }
-    return 'Salario no especificado';
   }
 
   @override
@@ -562,7 +546,7 @@ class _VacancyCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    _RecruiterVacanciesScreenState.formatSalary(
+                    formatVacancySalary(
                       vacante.salarioMin,
                       vacante.salarioMax,
                       vacante.moneda,
