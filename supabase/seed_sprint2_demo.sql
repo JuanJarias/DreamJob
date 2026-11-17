@@ -19,11 +19,11 @@ declare
 begin
   select id, empresa_id into v_rec_id, v_emp_id
   from public.reclutadores
-  where lower(email) = 'laura.demo@dreamjob.co'
+  where lower(email) in ('reclutador.demo@dreamjob.app', 'laura.demo@dreamjob.co')
   limit 1;
 
   if v_rec_id is null then
-    raise notice 'No se encontró la cuenta demo de reclutadora (laura.demo@dreamjob.co).';
+    raise notice 'No se encontró la cuenta demo de reclutadora (reclutador.demo@dreamjob.app).';
   else
     select id into v_flutter from public.tecnologias where nombre = 'Flutter';
     select id into v_dart from public.tecnologias where nombre = 'Dart';
@@ -80,7 +80,7 @@ begin
 
   select id into v_cand_id
   from public.usuarios
-  where lower(email) = 'carlos.demo@dreamjob.co'
+  where lower(email) in ('candidato.demo@dreamjob.app', 'carlos.demo@dreamjob.co')
   limit 1;
 
   if v_cand_id is not null then

@@ -26,10 +26,13 @@ class _DeckScreenState extends State<DeckScreen> {
     super.didChangeDependencies();
     if (!_initialLoaded) {
       _initialLoaded = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _cargarDeck();
-      });
+      final swipes = context.read<SwipesProvider>();
+      if (!swipes.initialized && !swipes.loading) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _cargarDeck();
+        });
+      }
     }
   }
 
