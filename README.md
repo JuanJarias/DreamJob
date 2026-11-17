@@ -5,7 +5,7 @@ Aplicación móvil de búsqueda de empleo y prácticas profesionales con dinámi
 ![Flutter](https://img.shields.io/badge/Flutter-Estable-02569B?logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL%20%2B%20Auth-3ECF8E?logo=supabase&logoColor=white)
-![Estado](https://img.shields.io/badge/Estado-Sprint%202%20(En%20revisi%C3%B3n)-blue)
+![Estado](https://img.shields.io/badge/Estado-Sprint%202%20(v2.0.0)-success)
 
 ---
 
@@ -267,7 +267,21 @@ Todos los mensajes de validación y respuestas de error se muestran en español:
 
 ---
 
-## 9. Cómo contribuir
+## 9. Sprint 2 — Oferta y Descubrimiento
+
+- **Guion de demostración (Sprint 2):** [docs/guion-video-sprint2.md](./docs/guion-video-sprint2.md)
+- **Backlog y criterios de aceptación:** [docs/backlog-sprint2.md](./docs/backlog-sprint2.md)
+- **Semilla de demostración:** [supabase/seed_sprint2_demo.sql](./supabase/seed_sprint2_demo.sql)
+
+### Alcance implementado (`v2.0.0`)
+- Navegación con **Rutas Nombradas** en `app/lib/main.dart` y contenedor `HomeShell` con barra inferior diferenciada por rol (`candidato`: *Deck*, *Postulaciones*, *Perfil*; `reclutador`: *Vacantes*, *Perfil*).
+- **Reclutador:** creación, edición, listado y cambio de estado (`activa`, `pausada`, `cerrada`) de vacantes (`VacancyFormScreen`, `RecruiterVacanciesScreen`) con conteo de interesados y edición de perfil/empresa (`EditProfileScreen`).
+- **Candidato:** configuración de preferencias y tecnologías (`CandidatePreferencesScreen`), cálculo de afinidad (`affinity.dart`), mazo deslizable con opción de *Deshacer* (`DeckScreen`), vista de detalle completo (`JobDetailScreen`) y bandeja de vacantes de interés (`CandidateLikedJobsScreen`).
+- **Verificación:** 74 pruebas unitarias y de widgets offline, 2 pruebas en vivo contra Supabase (`demo_users_live_test.dart`) y suite SQL de RLS en PostgreSQL 17 (`supabase/tests/rls.sql`).
+
+---
+
+## 10. Cómo contribuir
 
 Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, formato de commits, checklist de calidad antes de abrir un Pull Request y el workflow de CI que corre `flutter analyze` y `flutter test` en cada PR hacia `dev` y `main`.
 
@@ -293,20 +307,20 @@ psql -v ON_ERROR_STOP=1 -f supabase/tests/bootstrap.sql -f supabase/schema.sql -
 
 ---
 
-## 10. Roadmap
+## 11. Roadmap
 
 El Product Backlog completo, el **Objetivo del Sprint 2** y el detalle de las **12 historias de usuario** con sus criterios de aceptación se encuentran en [docs/backlog-sprint2.md](./docs/backlog-sprint2.md).
 
 | Sprint / Etapa | Alcance y valor entregado | Estado |
 |---|---|---|
 | Sprint 1 | Autenticación para candidato y reclutador, alta de empresa, perfil, sesión persistente y RLS (`v1.0.0`) | Completado (`v1.0.0`) |
-| Sprint 2 | **Objetivo:** permitir que reclutadores publiquen vacantes y candidatos configuren preferencias y se postulen desde un mazo interactivo de swipes ([ver backlog](./docs/backlog-sprint2.md)) | Implementado (pendiente verificación E2E) |
+| Sprint 2 | **Objetivo:** permitir que reclutadores publiquen vacantes y candidatos configuren preferencias y se postulen desde un mazo interactivo de swipes ([ver backlog](./docs/backlog-sprint2.md)) | Completado (`v2.0.0`) |
 | Sprint 3 (MVP) | Match bidireccional (`HU-S3-01`), seguimiento de postulaciones (`HU-S3-02`), agenda de entrevistas (`HU-S3-03`) y módulo Coach (`HU-S3-04`) | Planificado |
 | Backlog Post-MVP | OAuth con Google/Gmail para OTP (`HU-POST-01`), agente de IA adaptador de CV/cartas (`HU-POST-02`), llenado de formularios ATS (`HU-POST-03`), notificaciones push (`HU-POST-04`) y bloqueo de empresas (`HU-POST-05`) | Fuera de alcance MVP |
 
 ---
 
-## 11. Equipo y licencia
+## 12. Equipo y licencia
 
 ### Equipo
 - **Joshua Rivera** ([@JRivera340](https://github.com/JRivera340)) — Núcleo, configuración de Flutter y Supabase, router, autenticación e integración.
