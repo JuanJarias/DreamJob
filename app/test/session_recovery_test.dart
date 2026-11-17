@@ -3,11 +3,15 @@ import 'dart:io';
 import 'package:dreamjob/auth/data/models.dart';
 import 'package:dreamjob/auth/state/auth_provider.dart';
 import 'package:dreamjob/main.dart';
+import 'package:dreamjob/swipes/state/swipes_provider.dart';
+import 'package:dreamjob/vacancies/state/vacancies_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'fakes/fake_auth_repository.dart';
+import 'fakes/fake_swipes_repository.dart';
+import 'fakes/fake_vacancies_repository.dart';
 
 void main() {
   for (final role in UserRole.values) {
@@ -16,11 +20,29 @@ void main() {
     ) async {
       final repository = _SessionRepository(role);
       final auth = AuthProvider(repository: repository);
+      final vacancies = VacanciesProvider(repository: FakeVacanciesRepository());
+      final swipes = SwipesProvider(
+        swipesRepository: FakeSwipesRepository(),
+        vacanciesRepository: FakeVacanciesRepository(),
+      );
       addTearDown(auth.dispose);
-      await tester.pumpWidget(DreamJobApp(authProvider: auth));
+      addTearDown(vacancies.dispose);
+      addTearDown(swipes.dispose);
+      await tester.pumpWidget(
+        DreamJobApp(
+          authProvider: auth,
+          vacanciesProvider: vacancies,
+          swipesProvider: swipes,
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(auth.role, role);
+      expect(find.text('Perfil'), findsOneWidget);
+
+      await tester.tap(find.text('Perfil'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Mi perfil'), findsOneWidget);
       expect(find.text('sesion@example.com'), findsOneWidget);
       if (role == UserRole.reclutador) {
@@ -44,7 +66,18 @@ void main() {
       ..failSignOut = true;
     final auth = AuthProvider(repository: repository);
     addTearDown(auth.dispose);
-    await tester.pumpWidget(DreamJobApp(authProvider: auth));
+    await tester.pumpWidget(
+      DreamJobApp(
+        authProvider: auth,
+        vacanciesProvider: VacanciesProvider(
+          repository: FakeVacanciesRepository(),
+        ),
+        swipesProvider: SwipesProvider(
+          swipesRepository: FakeSwipesRepository(),
+          vacanciesRepository: FakeVacanciesRepository(),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(auth.loading, isFalse);
@@ -58,9 +91,22 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     final reopened = AuthProvider(repository: repository);
     addTearDown(reopened.dispose);
-    await tester.pumpWidget(DreamJobApp(authProvider: reopened));
+    await tester.pumpWidget(
+      DreamJobApp(
+        authProvider: reopened,
+        vacanciesProvider: VacanciesProvider(
+          repository: FakeVacanciesRepository(),
+        ),
+        swipesProvider: SwipesProvider(
+          swipesRepository: FakeSwipesRepository(),
+          vacanciesRepository: FakeVacanciesRepository(),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(reopened.role, UserRole.candidato);
+    await tester.tap(find.text('Perfil'));
+    await tester.pumpAndSettle();
     expect(find.text('Mi perfil'), findsOneWidget);
   });
 
@@ -71,7 +117,21 @@ void main() {
       ..failSignOut = true;
     final auth = AuthProvider(repository: repository);
     addTearDown(auth.dispose);
-    await tester.pumpWidget(DreamJobApp(authProvider: auth));
+    await tester.pumpWidget(
+      DreamJobApp(
+        authProvider: auth,
+        vacanciesProvider: VacanciesProvider(
+          repository: FakeVacanciesRepository(),
+        ),
+        swipesProvider: SwipesProvider(
+          swipesRepository: FakeSwipesRepository(),
+          vacanciesRepository: FakeVacanciesRepository(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Perfil'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Cerrar sesión'));

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../theme.dart';
 import '../../widgets/common.dart';
 
 class RegisterRoleScreen extends StatelessWidget {
   const RegisterRoleScreen({super.key});
+
+  void _goBack(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +21,7 @@ class RegisterRoleScreen extends StatelessWidget {
         leading: Padding(
           padding: const EdgeInsets.only(left: 8),
           child: Center(
-            child: CircleBack(onTap: () => context.go('/login')),
+            child: CircleBack(onTap: () => _goBack(context)),
           ),
         ),
         title: const Text(
@@ -56,7 +63,7 @@ class RegisterRoleScreen extends StatelessWidget {
                 description:
                     'Busco prácticas profesionales o vacantes que encajen con mi perfil.',
                 icon: Icons.person_outline,
-                onTap: () => context.go('/register/candidato'),
+                onTap: () => Navigator.pushNamed(context, '/register/candidato'),
               ),
               const SizedBox(height: 16),
               _RoleOptionCard(
@@ -64,12 +71,12 @@ class RegisterRoleScreen extends StatelessWidget {
                 description:
                     'Represento a una empresa y busco conectar con talento compatible.',
                 icon: Icons.business_outlined,
-                onTap: () => context.go('/register/reclutador'),
+                onTap: () => Navigator.pushNamed(context, '/register/reclutador'),
               ),
               const Spacer(),
               SecondaryPill(
                 label: 'Volver a iniciar sesión',
-                onTap: () => context.go('/login'),
+                onTap: () => _goBack(context),
               ),
             ],
           ),

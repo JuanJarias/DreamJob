@@ -4,6 +4,7 @@ import '../auth/data/models.dart';
 import '../auth/state/auth_provider.dart';
 import '../auth/widgets/auth_error_banner.dart';
 import '../theme.dart';
+import '../vacancies/data/salary_formatter.dart';
 import '../widgets/common.dart';
 
 class ProfileSummaryScreen extends StatelessWidget {
@@ -160,6 +161,62 @@ class ProfileSummaryScreen extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(height: 16),
+        DjCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Preferencias laborales',
+                    style: TextStyle(
+                      color: DjColors.ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  TextButton.icon(
+                    key: const Key('btn_candidate_preferences'),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, '/profile/preferences'),
+                    icon: const Icon(Icons.tune, size: 16),
+                    label: const Text('Configurar'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Modalidad: ${candidate.modalidadPreferida ?? 'Sin configurar'} · Nivel: ${candidate.seniority ?? 'Sin configurar'}',
+                style: const TextStyle(color: DjColors.muted, fontSize: 13),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                candidate.salarioMinimo != null
+                    ? 'Expectativa salarial: Desde \$ ${formatThousands(candidate.salarioMinimo!)} COP'
+                    : 'Expectativa salarial: Sin especificar',
+                style: const TextStyle(color: DjColors.muted, fontSize: 13),
+              ),
+              if (candidate.tecnologias.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: candidate.tecnologias
+                      .map(
+                        (t) => StatusPill(
+                          label: t.nombre,
+                          fg: DjColors.navy,
+                          bg: DjColors.tint,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -287,6 +344,15 @@ class ProfileSummaryScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _handleSignOut(BuildContext context) async {
+    final auth = context.read<AuthProvider>();
+    await auth.signOut();
+    if (!context.mounted) return;
+    if (!auth.isAuthenticated && auth.error == null) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -320,9 +386,14 @@ class ProfileSummaryScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.edit_outlined, color: DjColors.ink, size: 20),
+            tooltip: 'Editar perfil',
+            onPressed: () => Navigator.pushNamed(context, '/profile/edit'),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout, color: DjColors.muted, size: 20),
             tooltip: 'Cerrar sesión',
-            onPressed: () => context.read<AuthProvider>().signOut(),
+            onPressed: () => _handleSignOut(context),
           ),
         ],
       ),
@@ -340,12 +411,34 @@ class ProfileSummaryScreen extends StatelessWidget {
                 _buildCandidateView(context, auth.candidate!)
               else
                 _buildRecruiterView(context, auth.recruiter!),
-              const SizedBox(height: 28),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton.icon(
+                  onPressed: () =>
+                      Navigator.pushNamed(context, '/profile/edit'),
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: const Text('Editar perfil'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: DjColors.navy,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(26),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 height: 52,
                 child: OutlinedButton.icon(
-                  onPressed: () => context.read<AuthProvider>().signOut(),
+                  onPressed: () => _handleSignOut(context),
                   icon: const Icon(Icons.logout, size: 18),
                   label: const Text('Cerrar sesión'),
                   style: OutlinedButton.styleFrom(

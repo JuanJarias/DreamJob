@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class FakeAuthRepository implements AuthRepository {
   final Map<String, _FakeAccount> _accounts = {};
   final Map<String, Map<String, dynamic>> _usuarios = {};
+  final Map<String, List<String>> _usuarioTecnologias = {};
   final Map<String, Map<String, dynamic>> _reclutadores = {};
   final Map<String, Map<String, dynamic>> _empresas = {};
   int _nextId = 1;
@@ -56,7 +57,16 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<Map<String, dynamic>> obtenerUsuario(String id) async {
-    return _usuarios[id]!;
+    final user = Map<String, dynamic>.from(_usuarios[id]!);
+    final techIds = _usuarioTecnologias[id] ?? const [];
+    if (techIds.isNotEmpty) {
+      user['usuario_tecnologias'] = techIds
+          .map((tid) => {
+                'tecnologias': {'id': tid, 'nombre': tid, 'categoria': 'General'}
+              })
+          .toList();
+    }
+    return user;
   }
 
   @override
@@ -88,6 +98,52 @@ class FakeAuthRepository implements AuthRepository {
     final reclutador = _reclutadores[id]!;
     final empresa = _empresas[reclutador['empresa_id']]!;
     return {...reclutador, 'empresas': empresa};
+  }
+
+  @override
+  Future<void> actualizarUsuario({
+    required String id,
+    required Map<String, dynamic> datos,
+  }) async {
+    final actual = _usuarios[id] ?? {};
+    _usuarios[id] = {...actual, ...datos};
+  }
+
+  @override
+  Future<void> actualizarPreferenciasCandidato({
+    required String id,
+    required String modalidadPreferida,
+    int? salarioMinimo,
+    required String seniority,
+    required List<String> tecnologiaIds,
+  }) async {
+    final actual = _usuarios[id] ?? {};
+    _usuarios[id] = {
+      ...actual,
+      'modalidad_preferida': modalidadPreferida,
+      'salario_minimo': salarioMinimo,
+      'seniority': seniority,
+    };
+    _usuarioTecnologias[id] = List<String>.from(tecnologiaIds);
+  }
+
+  @override
+  Future<void> actualizarReclutadorYEmpresa({
+    required String reclutadorId,
+    required String nombre,
+    required String empresaId,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  }) async {
+    final reclutador = _reclutadores[reclutadorId] ?? {};
+    _reclutadores[reclutadorId] = {...reclutador, 'nombre': nombre};
+    _empresas[empresaId] = {
+      'id': empresaId,
+      'nombre': empresaNombre,
+      'descripcion': empresaDescripcion,
+      'monograma': empresaMonograma,
+    };
   }
 
   User _buildUser(String id, String email, Map<String, dynamic> metadata) {

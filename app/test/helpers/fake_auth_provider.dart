@@ -1,6 +1,7 @@
 import 'package:dreamjob/auth/data/auth_repository.dart';
 import 'package:dreamjob/auth/data/models.dart';
 import 'package:dreamjob/auth/state/auth_provider.dart';
+import 'package:dreamjob/vacancies/data/technology.dart';
 import '../fakes/fake_auth_repository.dart';
 
 class FakeAuthProvider extends AuthProvider {
@@ -21,23 +22,44 @@ class FakeAuthProvider extends AuthProvider {
   int signUpCandidateCallCount = 0;
   Map<String, dynamic>? lastSignUpCandidateArgs;
 
+  bool updateCandidateCalled = false;
+  int updateCandidateCallCount = 0;
+  Map<String, dynamic>? lastUpdateCandidateArgs;
+
+  bool updatePreferencesCalled = false;
+  int updatePreferencesCallCount = 0;
+  Map<String, dynamic>? lastUpdatePreferencesArgs;
+
+  bool updateRecruiterCalled = false;
+  int updateRecruiterCallCount = 0;
+  Map<String, dynamic>? lastUpdateRecruiterArgs;
+
   bool signOutCalled = false;
 
   void setCandidate({
     required String nombre,
     required String email,
     required String ciudad,
+    String candidateId = 'fake-cand-1',
     DateTime? fechaNacimiento,
     String? resumenPerfil,
+    String? modalidadPreferida,
+    int? salarioMinimo,
+    String? seniority,
+    List<Technology> tecnologias = const [],
   }) {
     _customRole = UserRole.candidato;
     _customCandidate = CandidateProfile(
-      id: 'fake-cand-1',
+      id: candidateId,
       nombre: nombre,
       email: email,
       ciudad: ciudad,
       fechaNacimiento: fechaNacimiento ?? DateTime(2000, 5, 15),
       resumenPerfil: resumenPerfil,
+      modalidadPreferida: modalidadPreferida,
+      salarioMinimo: salarioMinimo,
+      seniority: seniority,
+      tecnologias: tecnologias,
     );
     _customRecruiter = null;
     notifyListeners();
@@ -49,14 +71,16 @@ class FakeAuthProvider extends AuthProvider {
     required String empresaNombre,
     required String empresaDescripcion,
     required String empresaMonograma,
+    String empresaId = 'fake-emp-1',
+    String recruiterId = 'fake-rec-1',
   }) {
     _customRole = UserRole.reclutador;
     _customRecruiter = RecruiterProfile(
-      id: 'fake-rec-1',
+      id: recruiterId,
       nombre: nombre,
       email: email,
       empresa: CompanyProfile(
-        id: 'fake-emp-1',
+        id: empresaId,
         nombre: empresaNombre,
         descripcion: empresaDescripcion,
         monograma: empresaMonograma,
@@ -140,6 +164,100 @@ class FakeAuthProvider extends AuthProvider {
       'fechaNacimiento': fechaNacimiento,
       'resumenPerfil': resumenPerfil,
     };
+    return true;
+  }
+
+  @override
+  Future<bool> updateCandidateProfile({
+    required String nombre,
+    required String ciudad,
+    String? resumenPerfil,
+  }) async {
+    updateCandidateCalled = true;
+    updateCandidateCallCount++;
+    lastUpdateCandidateArgs = {
+      'nombre': nombre,
+      'ciudad': ciudad,
+      'resumenPerfil': resumenPerfil,
+    };
+
+    if (_customCandidate != null) {
+      _customCandidate = _customCandidate!.copyWith(
+        nombre: nombre,
+        ciudad: ciudad,
+        resumenPerfil: resumenPerfil,
+      );
+      notifyListeners();
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> updateCandidatePreferences({
+    required String modalidadPreferida,
+    int? salarioMinimo,
+    required String seniority,
+    required List<Technology> tecnologias,
+  }) async {
+    updatePreferencesCalled = true;
+    updatePreferencesCallCount++;
+    lastUpdatePreferencesArgs = {
+      'modalidadPreferida': modalidadPreferida,
+      'salarioMinimo': salarioMinimo,
+      'seniority': seniority,
+      'tecnologias': tecnologias,
+    };
+
+    if (tecnologias.isEmpty) {
+      _customError = 'Debes seleccionar al menos una tecnología';
+      notifyListeners();
+      return false;
+    }
+
+    if (_customCandidate != null) {
+      _customCandidate = _customCandidate!.copyWith(
+        modalidadPreferida: modalidadPreferida,
+        salarioMinimo: salarioMinimo,
+        clearSalarioMinimo: salarioMinimo == null,
+        seniority: seniority,
+        tecnologias: List<Technology>.from(tecnologias),
+      );
+      _customError = null;
+      notifyListeners();
+    }
+    return true;
+  }
+
+  @override
+  Future<bool> updateRecruiterProfile({
+    required String nombre,
+    required String empresaNombre,
+    required String empresaDescripcion,
+    required String empresaMonograma,
+  }) async {
+    updateRecruiterCalled = true;
+    updateRecruiterCallCount++;
+    lastUpdateRecruiterArgs = {
+      'nombre': nombre,
+      'empresaNombre': empresaNombre,
+      'empresaDescripcion': empresaDescripcion,
+      'empresaMonograma': empresaMonograma,
+    };
+
+    if (_customRecruiter != null) {
+      _customRecruiter = RecruiterProfile(
+        id: _customRecruiter!.id,
+        nombre: nombre,
+        email: _customRecruiter!.email,
+        empresa: CompanyProfile(
+          id: _customRecruiter!.empresa.id,
+          nombre: empresaNombre,
+          descripcion: empresaDescripcion,
+          monograma: empresaMonograma,
+        ),
+      );
+      notifyListeners();
+    }
     return true;
   }
 
