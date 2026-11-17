@@ -1,3 +1,8 @@
+import '../../auth/data/models.dart';
+import 'technology.dart';
+
+export 'technology.dart';
+
 class JobModalities {
   const JobModalities._();
   static const String remoto = 'Remoto';
@@ -25,60 +30,6 @@ class VacancyStatuses {
   static const List<String> values = [activa, pausada, cerrada];
 }
 
-class Technology {
-  final String id;
-  final String nombre;
-  final String categoria;
-
-  const Technology({
-    required this.id,
-    required this.nombre,
-    this.categoria = 'General',
-  });
-
-  factory Technology.fromMap(Map<String, dynamic> map) {
-    return Technology(
-      id: map['id'] as String,
-      nombre: map['nombre'] as String,
-      categoria: map['categoria'] as String? ?? 'General',
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'nombre': nombre,
-      'categoria': categoria,
-    };
-  }
-
-  Technology copyWith({
-    String? id,
-    String? nombre,
-    String? categoria,
-  }) {
-    return Technology(
-      id: id ?? this.id,
-      nombre: nombre ?? this.nombre,
-      categoria: categoria ?? this.categoria,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Technology &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
-
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
-  String toString() =>
-      'Technology(id: $id, nombre: $nombre, categoria: $categoria)';
-}
-
 class Vacancy {
   final String? id;
   final String empresaId;
@@ -95,6 +46,7 @@ class Vacancy {
   final DateTime? createdAt;
   final List<Technology> tecnologias;
   final int candidatosInteresados;
+  final CompanyProfile? empresa;
 
   const Vacancy({
     this.id,
@@ -112,6 +64,7 @@ class Vacancy {
     this.createdAt,
     this.tecnologias = const [],
     this.candidatosInteresados = 0,
+    this.empresa,
   });
 
   factory Vacancy.fromMap(
@@ -161,6 +114,13 @@ class Vacancy {
           .length;
     }
 
+    CompanyProfile? parsedEmpresa;
+    if (map['empresas'] is Map<String, dynamic>) {
+      parsedEmpresa = CompanyProfile.fromMap(
+        map['empresas'] as Map<String, dynamic>,
+      );
+    }
+
     return Vacancy(
       id: map['id'] as String?,
       empresaId: map['empresa_id'] as String,
@@ -179,6 +139,7 @@ class Vacancy {
           : DateTime.tryParse(map['created_at'] as String),
       tecnologias: parsedTecnologias,
       candidatosInteresados: parsedInteresados,
+      empresa: parsedEmpresa,
     );
   }
 
@@ -226,6 +187,7 @@ class Vacancy {
     DateTime? createdAt,
     List<Technology>? tecnologias,
     int? candidatosInteresados,
+    CompanyProfile? empresa,
   }) {
     return Vacancy(
       id: id ?? this.id,
@@ -244,6 +206,7 @@ class Vacancy {
       tecnologias: tecnologias ?? this.tecnologias,
       candidatosInteresados:
           candidatosInteresados ?? this.candidatosInteresados,
+      empresa: empresa ?? this.empresa,
     );
   }
 

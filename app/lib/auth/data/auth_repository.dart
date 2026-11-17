@@ -35,6 +35,14 @@ abstract class AuthRepository {
     required Map<String, dynamic> datos,
   });
 
+  Future<void> actualizarPreferenciasCandidato({
+    required String id,
+    required String modalidadPreferida,
+    int? salarioMinimo,
+    required String seniority,
+    required List<String> tecnologiaIds,
+  });
+
   Future<void> actualizarReclutadorYEmpresa({
     required String reclutadorId,
     required String nombre,
@@ -81,7 +89,11 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<Map<String, dynamic>> obtenerUsuario(String id) {
-    return _client.from('usuarios').select().eq('id', id).single();
+    return _client
+        .from('usuarios')
+        .select('*, usuario_tecnologias(tecnologias(*))')
+        .eq('id', id)
+        .single();
   }
 
   @override
@@ -118,6 +130,33 @@ class SupabaseAuthRepository implements AuthRepository {
     required Map<String, dynamic> datos,
   }) async {
     await _client.from('usuarios').update(datos).eq('id', id);
+  }
+
+  @override
+  Future<void> actualizarPreferenciasCandidato({
+    required String id,
+    required String modalidadPreferida,
+    int? salarioMinimo,
+    required String seniority,
+    required List<String> tecnologiaIds,
+  }) async {
+    await _client.from('usuarios').update({
+      'modalidad_preferida': modalidadPreferida,
+      'salario_minimo': salarioMinimo,
+      'seniority': seniority,
+    }).eq('id', id);
+
+    await _client
+        .from('usuario_tecnologias')
+        .delete()
+        .eq('usuario_id', id);
+
+    if (tecnologiaIds.isNotEmpty) {
+      final relaciones = tecnologiaIds
+          .map((tid) => {'usuario_id': id, 'tecnologia_id': tid})
+          .toList();
+      await _client.from('usuario_tecnologias').insert(relaciones);
+    }
   }
 
   @override

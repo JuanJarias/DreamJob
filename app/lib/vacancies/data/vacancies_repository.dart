@@ -16,6 +16,8 @@ abstract class VacanciesRepository {
 
   Future<List<Vacancy>> obtenerVacantesEmpresa(String empresaId);
 
+  Future<List<Vacancy>> obtenerVacantesActivas();
+
   Future<Vacancy?> obtenerVacantePorId(String id);
 
   Future<Vacancy> cambiarEstadoVacante({
@@ -109,8 +111,26 @@ class SupabaseVacanciesRepository implements VacanciesRepository {
   Future<List<Vacancy>> obtenerVacantesEmpresa(String empresaId) async {
     final response = await _client
         .from('vacantes')
-        .select('*, vacante_tecnologias(tecnologias(*)), swipes(id, direccion)')
+        .select(
+          '*, empresas(id, nombre, descripcion, monograma), vacante_tecnologias(tecnologias(*)), swipes(id, direccion)',
+        )
         .eq('empresa_id', empresaId)
+        .order('created_at', ascending: false);
+
+    final list = response as List<dynamic>;
+    return list
+        .map((item) => Vacancy.fromMap(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<List<Vacancy>> obtenerVacantesActivas() async {
+    final response = await _client
+        .from('vacantes')
+        .select(
+          '*, empresas(id, nombre, descripcion, monograma), vacante_tecnologias(tecnologias(*))',
+        )
+        .eq('estado', VacancyStatuses.activa)
         .order('created_at', ascending: false);
 
     final list = response as List<dynamic>;
@@ -123,7 +143,9 @@ class SupabaseVacanciesRepository implements VacanciesRepository {
   Future<Vacancy?> obtenerVacantePorId(String id) async {
     final response = await _client
         .from('vacantes')
-        .select('*, vacante_tecnologias(tecnologias(*)), swipes(id, direccion)')
+        .select(
+          '*, empresas(id, nombre, descripcion, monograma), vacante_tecnologias(tecnologias(*)), swipes(id, direccion)',
+        )
         .eq('id', id)
         .maybeSingle();
 

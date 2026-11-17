@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../data/auth_error_mapper.dart';
 import '../data/auth_repository.dart';
 import '../data/models.dart';
+import '../../vacancies/data/technology.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider({AuthRepository? repository})
@@ -265,13 +266,67 @@ class AuthProvider extends ChangeNotifier {
         },
       );
 
-      _candidate = CandidateProfile(
-        id: current.id,
+      _candidate = current.copyWith(
         nombre: trimmedNombre,
-        email: current.email,
         ciudad: trimmedCiudad,
-        fechaNacimiento: current.fechaNacimiento,
         resumenPerfil: sanitizedResumen,
+      );
+      _loading = false;
+      _error = null;
+      notifyListeners();
+      return true;
+    } catch (error) {
+      _loading = false;
+      _error = AuthErrorMapper.map(error);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateCandidatePreferences({
+    required String modalidadPreferida,
+    int? salarioMinimo,
+    required String seniority,
+    required List<Technology> tecnologias,
+  }) async {
+    final current = _candidate;
+    if (current == null) {
+      _error = 'No se encontró el perfil de candidato';
+      notifyListeners();
+      return false;
+    }
+
+    if (tecnologias.isEmpty) {
+      _error = 'Debes seleccionar al menos una tecnología';
+      notifyListeners();
+      return false;
+    }
+
+    if (salarioMinimo != null && salarioMinimo < 0) {
+      _error = 'Ingresa un salario mínimo válido';
+      notifyListeners();
+      return false;
+    }
+
+    _loading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.actualizarPreferenciasCandidato(
+        id: current.id,
+        modalidadPreferida: modalidadPreferida,
+        salarioMinimo: salarioMinimo,
+        seniority: seniority,
+        tecnologiaIds: tecnologias.map((t) => t.id).toList(),
+      );
+
+      _candidate = current.copyWith(
+        modalidadPreferida: modalidadPreferida,
+        salarioMinimo: salarioMinimo,
+        clearSalarioMinimo: salarioMinimo == null,
+        seniority: seniority,
+        tecnologias: List<Technology>.from(tecnologias),
       );
       _loading = false;
       _error = null;
