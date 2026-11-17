@@ -273,11 +273,48 @@ Todos los mensajes de validación y respuestas de error se muestran en español:
 - **Backlog y criterios de aceptación:** [docs/backlog-sprint2.md](./docs/backlog-sprint2.md)
 - **Semilla de demostración:** [supabase/seed_sprint2_demo.sql](./supabase/seed_sprint2_demo.sql)
 
-### Alcance implementado (`v2.0.0`)
+### 9.1. Alcance implementado (`v2.0.0`)
 - Navegación con **Rutas Nombradas** en `app/lib/main.dart` y contenedor `HomeShell` con barra inferior diferenciada por rol (`candidato`: *Deck*, *Postulaciones*, *Perfil*; `reclutador`: *Vacantes*, *Perfil*).
 - **Reclutador:** creación, edición, listado y cambio de estado (`activa`, `pausada`, `cerrada`) de vacantes (`VacancyFormScreen`, `RecruiterVacanciesScreen`) con conteo de interesados y edición de perfil/empresa (`EditProfileScreen`).
 - **Candidato:** configuración de preferencias y tecnologías (`CandidatePreferencesScreen`), cálculo de afinidad (`affinity.dart`), mazo deslizable con opción de *Deshacer* (`DeckScreen`), vista de detalle completo (`JobDetailScreen`) y bandeja de vacantes de interés (`CandidateLikedJobsScreen`).
 - **Verificación:** 74 pruebas unitarias y de widgets offline, 2 pruebas en vivo contra Supabase (`demo_users_live_test.dart`) y suite SQL de RLS en PostgreSQL 17 (`supabase/tests/rls.sql`).
+
+### 9.2. Cuentas de demostración para probar los flujos
+
+Con la aplicación conectada a Supabase (ver sección **7. Primeros pasos**), se encuentran habilitadas las siguientes cuentas de prueba (también se pueden crear cuentas nuevas desde `/register` sin confirmación por correo):
+
+| Rol | Correo | Contraseña | Datos precargados |
+|---|---|---|---|
+| **Reclutador** | `reclutador.demo@dreamjob.app` | `DreamJob2026!` | Empresa **NovaTech Labs** (`NT`) con 4 vacantes activas |
+| **Candidato** | `candidato.demo@dreamjob.app` | `DreamJob2026!` | Perfil en **Cali** con preferencias (`Remoto`, `Semi-Senior`, `Flutter`, `Dart`, `PostgreSQL`) |
+
+### 9.3. Rutas principales del Sprint 2
+
+| Ruta | Pantalla | Función |
+|---|---|---|
+| `/home` | `HomeShell` | Contenedor principal con barra inferior según el rol autenticado |
+| `/profile/edit` | `EditProfileScreen` | Edición de perfil personal (y datos/monograma de empresa para reclutador) |
+| `/profile/preferences` | `CandidatePreferencesScreen` | Selección de modalidad, nivel, salario mínimo y tecnologías del candidato |
+| `/vacancies/new` | `VacancyFormScreen` | Publicación de nueva vacante con tecnologías requeridas |
+| `/vacancies/edit` | `VacancyFormScreen` | Edición de una vacante existente de la empresa |
+| `/vacancies/detail` | `JobDetailScreen` | Detalle completo de empresa, oferta, tecnologías y acciones de postulación |
+
+### 9.4. Instrucciones para navegar los flujos
+
+#### Flujo Reclutador
+1. Iniciar sesión en `/login` con `reclutador.demo@dreamjob.app` / `DreamJob2026!`.
+2. En la pestaña **Vacantes** (`RecruiterVacanciesScreen`), revisar las 4 ofertas publicadas de **NovaTech Labs** con su estado y contador de interesados.
+3. Tocar **Publicar vacante** (`/vacancies/new`), completar cargo, ubicación, modalidad, rango salarial, descripción y al menos una tecnología, y guardar.
+4. En cualquier tarjeta, tocar **Editar** (`/vacancies/edit`) para modificar sus datos o usar el menú de estado para cambiar entre *Activa*, *Pausada* y *Cerrada*.
+5. Ir a la pestaña **Perfil** → **Editar perfil** (`/profile/edit`) para actualizar nombre o descripción/monograma de la empresa. Luego tocar **Cerrar sesión**.
+
+#### Flujo Candidato
+1. Iniciar sesión en `/login` con `candidato.demo@dreamjob.app` / `DreamJob2026!`.
+2. Ir a la pestaña **Perfil** → **Configurar** en *Preferencias laborales* (`/profile/preferences`) para ajustar modalidad, seniority, expectativa salarial mínima y tecnologías (`FilterChip`), y guardar.
+3. Volver a la pestaña **Deck** (`DeckScreen`): las vacantes activas aparecen ordenadas por afinidad resaltando las tecnologías coincidentes y las razones de compatibilidad.
+4. Deslizar a la izquierda (o tocar **Omitir**) para descartar una oferta y usar **Deshacer** (en el aviso inferior o en el botón *Deshacer*) para devolverla al tope del mazo.
+5. Tocar una tarjeta para abrir **Detalle de la vacante** (`/vacancies/detail`) y tocar **Postular** (o deslizar a la derecha en el Deck).
+6. Ir a la pestaña **Postulaciones** (`CandidateLikedJobsScreen`) para consultar las ofertas postuladas ordenadas de la más reciente a la más antigua con su estado inicial *En revisión* y volver a abrir su detalle.
 
 ---
 
@@ -285,9 +322,9 @@ Todos los mensajes de validación y respuestas de error se muestran en español:
 
 Ver la guía completa en [CONTRIBUTING.md](./CONTRIBUTING.md): flujo de ramas, formato de commits, checklist de calidad antes de abrir un Pull Request y el workflow de CI que corre `flutter analyze` y `flutter test` en cada PR hacia `dev` y `main`.
 
-### Verificación del Sprint 1
+### Verificación (Sprint 1 y Sprint 2)
 
-Desde `app/`, ejecutar `flutter analyze` y `flutter test`. Las pruebas cubren formularios, perfiles de ambos roles, restauración de sesión y recuperación de errores de red al abrir la app o cerrar sesión.
+Desde `app/`, ejecutar `flutter analyze` y `flutter test`. Las 74 pruebas offline cubren autenticación, perfiles de ambos roles, restauración de sesión, cálculo de afinidad, swipes con deshacer, deck, detalle, preferencias, formulario/listado de vacantes y postulaciones.
 
 Las dos pruebas de `test/demo_users_live_test.dart` se omiten explícitamente cuando faltan credenciales. Para ejecutarlas contra Supabase, agregar `DEMO_PASSWORD`, `DEMO_CANDIDATO_EMAIL` y `DEMO_RECLUTADOR_EMAIL` al archivo local `app/.env` y ejecutar:
 
